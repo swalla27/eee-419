@@ -1,0 +1,6 @@
+python3 -m venv venv-core
+source venv-core/bin/activate
+pip install --upgrade pip
+pip install numpy pandas etc.
+pip freeze > requirements-core.txt
+deactivate

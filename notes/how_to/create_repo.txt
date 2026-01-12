@@ -1,0 +1,7 @@
+git init
+git remote set-url origin git@github.com:swalla27/eee-419.git
+git remote -v
+git add -A
+git commit -m "describe changes"
+git status
+git push origin main
