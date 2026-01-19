@@ -1,8 +1,10 @@
+import os
+
 # splitting up a string and file I/O
 
 # split up a string into words and iterate on list entries rather than index
 
-help(str.split)                          # first, see how this works
+# help(str.split)                          # first, see how this works
 my_string = "Once upon a time"
 print("this is my_string:",my_string)
 my_words = my_string.split()             # get a list of words in my_string
@@ -47,8 +49,11 @@ input()                                 # pause here...
 print("notice that there is no file in the directory called m2_str_io.out")
 input()     # pause to verify
 
-my_inp_file = open("m2_3_1_str_io.txt","r")      # r is default, add a b for binary
-my_out_file = open("m2_3_1_str_io.out","w")      # to append, use "a" instead of "w"
+print(os.getcwd())
+print(os.listdir())
+
+my_inp_file = open("notes/M2/m2_3_1_str_io.txt","r")      # r is default, add a b for binary
+my_out_file = open("notes/M2/m2_3_1_str_io.out","w")      # to append, use "a" instead of "w"
 
 for line in my_inp_file:          # neat way to get a line at a time to process
     print(line)                   # note the extra carriage returns
@@ -60,7 +65,7 @@ my_out_file.close()               # forgetting to close is a common error
 print("now the file is there...")
 input()     # pause here
 
-my_inp_file = open("m2_3_1_str_io.txt","r")    # r is default, add a b for binary
+my_inp_file = open("notes/M2/m2_3_1_str_io.txt","r")    # r is default, add a b for binary
 
 one_line = my_inp_file.readline()      # read one line at a time
 print(one_line)

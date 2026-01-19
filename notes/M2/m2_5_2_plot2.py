@@ -67,8 +67,9 @@ fig, ax = plt.subplots()            # Note 2 return values!
 # interpolation is how to map the values to the colors
 # vmin and vmax are how much range to show on the color bar
 
-im = ax.imshow(data, cmap=plt.get_cmap('hot'), interpolation='nearest',
+im = ax.imshow(data, cmap=plt.get_cmap('cool'), interpolation='nearest',
                vmin=0, vmax=15)
+# https://matplotlib.org/stable/users/explain/colors/colormaps.html
 
 fig.colorbar(im)   # put the data and color bar into the figure
 plt.title("my heat diagram")
@@ -77,7 +78,7 @@ plt.show()         # show it
 plt.plot(x,y1, label='line1')
 plt.xlabel('x axis')                  # add labels, title, grid and show it
 plt.ylabel('y axis')
-plt.arrow(2,60,4,0,                   # from x=2 to x=6, y=60
+plt.arrow(2,60,10,0,                   # from x=2 to x=6, y=60
           shape='full',               # a complete arrow head
           head_width=5,               # how wide the arrow head is
           head_length=.5,             # how long the arrow head is
