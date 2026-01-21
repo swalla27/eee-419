@@ -43,6 +43,7 @@ plt.show()                          # show the plot
 # '--'  dashed line
 # '-.'  dots and dashes
 # ':'   dots
+# https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html
 
 # the comma is important as plot returns a list
 # in this case, a list of 1 item

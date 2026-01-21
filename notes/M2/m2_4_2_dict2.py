@@ -34,7 +34,7 @@ input()      # pause here
 
 keys = ['Name','Age','Year']         # define the dictionary keys
 students = []                        # initialize list so we can append to it
-filename = 'm2_4_2_dict2.txt'            # string with the filename
+filename = 'notes/M2/m2_4_2_dict2.txt'            # string with the filename
 fh = open(filename,"r")              # open the file
 
 lines = fh.readlines()               # create a list of the lines in the file
@@ -70,7 +70,7 @@ input()      # pause here
 # how to create a comma separated list for a spreadsheet...
 # open a file and assign it to csvfile
 
-with open('m2_4_2_dict2.csv','w',newline='') as csvfile:
+with open('notes/M2/m2_4_2_dict2.csv','w',newline='') as csvfile:
     # establish a writer with the keys
     writer = csv.DictWriter(csvfile, fieldnames=keys)
     writer.writeheader()                # comma separated list of keys
