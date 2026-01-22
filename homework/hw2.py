@@ -5,6 +5,7 @@
 
 # Homework 1
 # I did not use AI at all to complete this assignment
+# I used the below reference when making my midpoint integral algorithm (the function called midpoint_integration)
 # https://math.libretexts.org/Courses/Mount_Royal_University/Calculus_for_Scientists_II/2%3A_Techniques_of_Integration/2.5%3A_Numerical_Integration_-_Midpoint%2C_Trapezoid%2C_Simpson%27s_rule
 
 ########################################################
@@ -20,7 +21,7 @@ UPPER_BOUND = 10 # The upper bound for the integral
 n = 100_000 # The number of divisions used for the custom integration method, standard integral notation
 h = (UPPER_BOUND - LOWER_BOUND) / n # Standard integral notation, this is the width of each rectangle
 
-user_response = input('Input a set of 3 numbers between -10 and 10 (float or int): ')
+user_response = input('Input a set of 3 numbers between -10 and 10: ')
 try:
     # Attempt to extract the three coefficients, and if an exception occurs, stop the whole program
     (a, b, c) = user_response.split()
@@ -40,13 +41,15 @@ def cubic_function(x: float, a: float, b: float, c: float) -> float:
 # Integrate using method 1, discarding the error
 method1_result, _ = integrate.quad(cubic_function, LOWER_BOUND, UPPER_BOUND, args=(a, b, c)) 
 
-def midpoint_integration():
+def midpoint_integration() -> float:
     # This is a custom function based on midpoint integration
     # I calculate the area of a bunch of rectangles and add them together
+    # I don't really need to have any function inputs because it uses mostly constants
 
-    running_sum = 0 # The running soum will store our area until now
+    running_sum = 0 # The running sum will store the area accumulated so far
     midpoints = np.arange((h/2)+LOWER_BOUND, UPPER_BOUND+(h/2), h)
-    # We want the midpoints to run from h/2 above the lower bound until h/2 beneath the upper bound (np.arange stops one short)
+    # We want the midpoints to run from h/2 above the lower bound until h/2 beneath the upper bound
+    # (Note that I used h/2 over the upper bound because np.arange stops one short)
     # They should also increment by h, and this array will have the same number of entries as "n"
 
     for midpoint in midpoints:
@@ -59,9 +62,9 @@ def midpoint_integration():
         # Now I'm just adding the area of that new rectangle to whatever we had before
         running_sum += rect_width * rect_height
 
-    return running_sum
+    return running_sum # Now that we're done with that for-loop, the running sum is our definite integral
 
-method2_result = midpoint_integration() # Just changing the name of the variable so it's easy to see what I'm doing
+method2_result = midpoint_integration() # Calling the midpoint integration function and storing the result
 
 perc_error = abs((method1_result-method2_result)/method1_result)*100 # Calculates the percent error for the custom integration
 
