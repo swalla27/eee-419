@@ -1,0 +1,2 @@
+- Task 2 Question 7, I don't think that (1, 1) is the correct answer because python doesn't recognize the shape() command here. You need to either do print(np.shape(array)) or call it as a method, like print(array.shape)
+

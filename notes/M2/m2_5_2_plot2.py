@@ -60,7 +60,7 @@ plt.show()
 
 # color bar example
 
-data = [[0,1,4], [8,9,12]]          # grid data to use
+data = [[0,1,4], [8,9,12], [100, 200, 300]]          # grid data to use
 
 fig, ax = plt.subplots()            # Note 2 return values!
 

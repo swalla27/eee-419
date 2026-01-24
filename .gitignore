@@ -1,4 +1,2 @@
-venv-core/*
-venv-pt/*
-venv-tf/*
-textbooks/*
+html/
+*.pdf
