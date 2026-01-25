@@ -57,7 +57,6 @@ def cubic_function(x: float, a: float, b: float, c: float) -> float:
 
 def find_cubic_solution(a: float, b: float, c: float, LOWER_BOUND: float, UPPER_BOUND: float) -> float:
     """The purpose of this function is to find the analytical solution for this integral, when the upper and lower bounds are known.\n
-       It is optimized for the specific situation when the upper bound is 1 and the lower bound is 0.\n
        Naturally, it takes three inputs: a, b, and c. Its only output is the analytical solution for those coefficients and bounds.\n
        """
     
