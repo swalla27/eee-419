@@ -73,7 +73,7 @@ def midpoint_integration(integrand, LOWER_BOUND: float, UPPER_BOUND: float, h: f
     running_sum = 0 # The running sum will store the area accumulated so far
     midpoints = np.arange((h/2)+LOWER_BOUND, UPPER_BOUND+(h/2), h)
     # We want the midpoints to run from h/2 above the lower bound until h/2 beneath the upper bound
-    # (Note that I used h/2 over the upper bound because np.arange stops one short)
+    # Note that I used h/2 over the upper bound because np.arange stops one short
     # They should also increment by h, and this array will have the same number of entries as "n"
 
     for midpoint in midpoints:
