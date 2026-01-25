@@ -8,9 +8,7 @@
 
 # I used this reference to understand the procedure behind the midpoint method of definite integrals
 # https://math.libretexts.org/Courses/Mount_Royal_University/Calculus_for_Scientists_II/2%3A_Techniques_of_Integration/2.5%3A_Numerical_Integration_-_Midpoint%2C_Trapezoid%2C_Simpson%27s_rule
-# I used the integral tables in this second reference when solving the integral in problem 2, it was the 1/a arctan(u/a) one
-# https://openstax.org/books/calculus-volume-1/pages/a-table-of-integrals
-# I also used this reference when writing my midpoint function because I needed to make it accept an arbitrary number of arguments
+# I used this reference when writing my midpoint function because I needed to make it accept an arbitrary number of arguments
 # https://www.geeksforgeeks.org/python/args-kwargs-python/
 
 ########################################################
@@ -38,21 +36,40 @@ except:
     print('Invalid entry, please try again.')
     sys.exit()
 
+#####################
+##### Functions #####
+#####################
+
+def find_perc_error(solution: float, estimate: float) -> float:
+    """The purpose of this function is to find the percent error for a given esimate.\n
+       It takes two inputs, which are the analytical solution and the estimate in question.\n
+       Naturally, the only output is the percentage error."""
+
+    error = abs((solution-estimate)/solution)*100
+    return error
+
 def cubic_function(x: float, a: float, b: float, c: float) -> float:
-    # This function will take x, a, b, and c as inputs. f(x) = ax^3 + bx^2 + cx
-    # It will output the result of the cubic function itself, without any integration
+    """The purpose of this function is to represent the cubic function as a function of x and the coefficients a, b, c.\n
+       Its only output is the y-value associated with that combination of input values.\n
+       Of course, the function is a*x**3 + b*x**2 + c*x"""
     
     return (a*x**3) + (b*x**2) + (c*x)
 
-# Integrate using method 1, discarding the error
-method1_result, _ = integrate.quad(cubic_function, LOWER_BOUND, UPPER_BOUND, args=(a, b, c)) 
-
-def midpoint_integration(integrand, *args) -> float:
-    # This is a custom function based on midpoint integration
-    # I calculate the area of a bunch of rectangles and add them together
+def find_cubic_solution(a: float, b: float, c: float, LOWER_BOUND: float, UPPER_BOUND: float) -> float:
+    """The purpose of this function is to find the analytical solution for this integral, when the upper and lower bounds are known.\n
+       It is optimized for the specific situation when the upper bound is 1 and the lower bound is 0.\n
+       Naturally, it takes three inputs: a, b, and c. Its only output is the analytical solution for those coefficients and bounds.\n
+       """
     
-    # The inputs are the function to be integrated (integrand) and the arguments that function requires (*args)
-    # The function will output the definite integral of that function over the specified interval
+    upper_term = (a/4)*UPPER_BOUND**4 + (b/3)*UPPER_BOUND**3 + (c/2)*UPPER_BOUND**2
+    lower_term = (a/4)*LOWER_BOUND**4 + (b/3)*LOWER_BOUND**3 + (c/2)*LOWER_BOUND**2
+    
+    return upper_term - lower_term
+
+def midpoint_integration(integrand, LOWER_BOUND: float, UPPER_BOUND: float, h: float, *args) -> float:
+    """The purpose of this function is to evaluate an integral when given an integrand, its required arguments, and bounds.\n
+       It uses the midpoint method, which just means that we create a ton of rectangles between the bounds and add their areas.\n
+       The function will return the value of this integral over the defined interval."""
 
     running_sum = 0 # The running sum will store the area accumulated so far
     midpoints = np.arange((h/2)+LOWER_BOUND, UPPER_BOUND+(h/2), h)
@@ -61,62 +78,67 @@ def midpoint_integration(integrand, *args) -> float:
     # They should also increment by h, and this array will have the same number of entries as "n"
 
     for midpoint in midpoints:
-        # The width of the rectangle should always be h
-        rect_width = h
 
-        # The height of the rectangle will be the cubic function evaluated at that midpoint
-        rect_height = integrand(midpoint, *args)
-
-        # Now I'm just adding the area of that new rectangle to whatever we had before
-        running_sum += rect_width * rect_height
+        rect_width = h # The width of the rectangle should always be h
+        rect_height = integrand(midpoint, *args) # The height of the rectangle will be the cubic function evaluated at that midpoint
+        running_sum += rect_width * rect_height # Now I'm just adding the area of that new rectangle to whatever we had before
 
     return running_sum # Now that we're done with that for-loop, the running sum is our definite integral
 
-t0 = time.time()
-method2_result = midpoint_integration(cubic_function, a, b, c) # Calling the midpoint integration function and storing the result
-# This time, I called the midpoint_integration() function using four arguments because the first argument (cubic_function) actually requires those three other arguments
-# My functions are set up such that the 2nd, 3rd, and 4th arguments into midpoint_integration() are actually fed into cubic_function() later on
-t1 = time.time()
+###########################
+##### Solve Problem 1 #####
+###########################
 
-perc_error = abs((method1_result-method2_result)/method1_result)*100 # Calculates the percent error for the custom integration
+# First, I will find the solution to the integral of this particular cubic function using my derived expression
+# Then, I will integrate using the quad function from scipy.integrate, and find its associated error
+# Finally, I will integrate using my custom midpoint integration function and find its error as well
+
+cubic_solution = find_cubic_solution(a, b, c, LOWER_BOUND, UPPER_BOUND)
+
+method1_result, _ = integrate.quad(cubic_function, LOWER_BOUND, UPPER_BOUND, args=(a, b, c)) 
+perc_error_m1 = find_perc_error(cubic_solution, method1_result)
+
+method2_result = midpoint_integration(cubic_function, LOWER_BOUND, UPPER_BOUND, h, a, b, c) 
+perc_error_m2 = find_perc_error(cubic_solution, method2_result)
 
 # Print the results for Problem 1 to the terminal
 print('\nPROBLEM ONE')
+print(f'Solution = {cubic_solution:.2f}')
+print(f'Method 1 (scipy.integrate.quad): I1 = {method1_result:.2f}')
+print(f'Method 1 Percent Error: {perc_error_m1:.4f} %')
+print(f'Method 2 (custom midpoint): I1 = {method2_result:.2f}')
+print(f'Method 2 Percent Error: {perc_error_m2:.4f} %')
 
-# This was 0.05 seconds on my machine. This one should be really fast no matter what
-print(f'The custom function to evaluate this integral took {t1-t0:.2f} seconds on this machine') 
-print(f'Method 1: I1 = {method1_result:.4f}')
-print(f'Method 2: I1 = {method2_result:.4f}')
-print(f'Percentage error: {perc_error:.4f}%')
 
 #################################################################
 ##### Problem 2: Substitution method and infinite integrals #####
 #################################################################
 
-# I am going to overwrite a few different variables, such as the upper and lower bound
-# Creating new variables would be confusing and unnecessary. They do the same things as before
+# The u-substitution that I used to verify the solution to this integral is indeed pi
+# https://drive.google.com/file/d/1J4fB9gmG9iC_ujHpxxWu7HsU9jIadJto/view?usp=drive_link
+# A reference I used for integral tables while performing this derivation
+# https://openstax.org/books/calculus-volume-1/pages/a-table-of-integrals
+
+# I am going to overwrite a few variables for this problem, namely h and the upper and lower bounds
 UPPER_BOUND = 100_000
 LOWER_BOUND = 1
 h = 0.001
 
-def integrand_problem_two(x: float) -> float:
-    # This is the integrand for problem 2, which involves a square root in the denominator
-    # This python function just mimics that mathematical function from the prompt
+def integrand_inverse_sqrt(x: float) -> float:
+    """The purpose of this function is to represent the integrand in problem two.\n
+       This python functions accepts only x and outputs the y-value."""
 
     denominator = x*np.sqrt(x-1)
     return 1/denominator
 
-method1_result = np.pi # I solved this integral using u-subtitution and have confirmed the result is pi
-t2 = time.time()
-method2_result = midpoint_integration(integrand_problem_two) # integrand_problem_two has no other arguments besides x, so I list no extra arguments here
-t3 = time.time()
+# Now I am going to find the result of this integral using methods 1 and 2
+# Refer to that google drive link for how I proved this integral evaluates to pi
+# I use the scipy.integrate.quad function to evaluate the integral in method 2
+method1_result = np.pi
+method2_result, _ = integrate.quad(integrand_inverse_sqrt, LOWER_BOUND, UPPER_BOUND)
 
 # Print the results for problem two to the terminal
 print('\nPROBLEM TWO')
-
-# This was 41.34 seconds on my machine. It might take you longer, depending on your hardware
-# I really did not want to increase the accuracy any more, because I'm assuming that more than about a minute is too much
-print(f'The custom function to evaluate this integral took {t3-t2:.2f} seconds on this machine') 
 print(f'{method1_result:.8f} # I2 Method 1')
 print(f'{method2_result:.8f} # I2 Method 2')
 print(f'{(method1_result-np.pi):.10f} # Difference Method 1')
