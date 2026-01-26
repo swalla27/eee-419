@@ -92,49 +92,50 @@ def midpoint_integration(integrand, LOWER_BOUND: float, UPPER_BOUND: float, h: f
 # Then, I will integrate using the quad function from scipy.integrate, and find its associated error
 # Finally, I will integrate using my custom midpoint integration function and find its error as well
 
-cubic_solution = find_cubic_solution(a, b, c, LOWER_BOUND, UPPER_BOUND)
+# cubic_solution = find_cubic_solution(a, b, c, LOWER_BOUND, UPPER_BOUND)
 
 method1_result, _ = integrate.quad(cubic_function, LOWER_BOUND, UPPER_BOUND, args=(a, b, c)) 
-perc_error_m1 = find_perc_error(cubic_solution, method1_result)
 
 method2_result = midpoint_integration(cubic_function, LOWER_BOUND, UPPER_BOUND, h, a, b, c) 
-perc_error_m2 = find_perc_error(cubic_solution, method2_result)
+perc_error = find_perc_error(method2_result, method1_result)
 
 # Print the results for Problem 1 to the terminal
 print('\nPROBLEM ONE')
-print(f'Solution = {cubic_solution:.2f}')
-print(f'Method 1 (scipy.integrate.quad): I1 = {method1_result:.2f}')
-print(f'Method 1 Percent Error: {perc_error_m1:.4f} %')
-print(f'Method 2 (custom midpoint): I1 = {method2_result:.2f}')
-print(f'Method 2 Percent Error: {perc_error_m2:.4f} %')
+print(f'Method 1: I1 = {method1_result:.2f}')
+print(f'Method 2: I1 = {method2_result:.2f}')
+print(f'Percentage Error: {perc_error:.4f} %')
 
 
 #################################################################
 ##### Problem 2: Substitution method and infinite integrals #####
 #################################################################
 
-# The u-substitution that I used to verify the solution to this integral is indeed pi
-# https://drive.google.com/file/d/1J4fB9gmG9iC_ujHpxxWu7HsU9jIadJto/view?usp=drive_link
-# A reference I used for integral tables while performing this derivation
-# https://openstax.org/books/calculus-volume-1/pages/a-table-of-integrals
-
 # I am going to overwrite a few variables for this problem, namely h and the upper and lower bounds
 UPPER_BOUND = 100_000
 LOWER_BOUND = 1
-h = 0.001
 
-def integrand_inverse_sqrt(x: float) -> float:
-    """The purpose of this function is to represent the integrand in problem two.\n
-       This python functions accepts only x and outputs the y-value."""
+def integrand_fx_of_z(z: float) -> float:
+    """The purpose of this function is to represent the integrand from problem 2 as a function of z.\n
+       This python function accepts only z and outputs the y-value. It will be used for the integration in method 1.\n
+       It is with respect to z so that we can turn an infinite bound finite, thus making the integration better suited to numerical methods."""
+
+    denominator = np.sqrt(z**2 * (1-z) * (2*z-1))
+    return 1/denominator
+
+def integrand_fx_of_x(x: float) -> float:
+    """The purpose of this function is to represent the integrand in problem 2 as a function of x.\n
+       This python functions accepts only x and outputs the y-value. It will be used for the integration in method 2.\n
+       It is with respect to x, which requires a very large upper bound. I am using 100,000 here, and that seems to be a reasonable approximation."""
 
     denominator = x*np.sqrt(x-1)
     return 1/denominator
 
 # Now I am going to find the result of this integral using methods 1 and 2
-# Refer to that google drive link for how I proved this integral evaluates to pi
-# I use the scipy.integrate.quad function to evaluate the integral in method 2
-method1_result = np.pi
-method2_result, _ = integrate.quad(integrand_inverse_sqrt, LOWER_BOUND, UPPER_BOUND)
+# I used quad to integrate the function of z for method 1
+# I used quad to integrate the function of x for method 2
+
+method1_result, _ = integrate.quad(integrand_fx_of_z, 0.5, 1)
+method2_result, _ = integrate.quad(integrand_fx_of_x, LOWER_BOUND, UPPER_BOUND)
 
 # Print the results for problem two to the terminal
 print('\nPROBLEM TWO')

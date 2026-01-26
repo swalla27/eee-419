@@ -1,9 +1,5 @@
-def snow_predictor(temperature: float = 20):
-    if temperature < 0:
-        print("Well, there's at least a chance!")
-    else:
-        print("Ain't no way, it's too warm!")
+a = 'hello there'
+b = "hello there"
 
-snow_predictor()
-snow_predictor(-10)
-
+if a == b:
+    print('yes')
