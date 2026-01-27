@@ -8,8 +8,8 @@
 
 import numpy as np                     # needed for arrays
 from numpy.linalg import solve         # needed for matrices
-from notes.M3.m3_3_2_read_netlist import read_netlist  # supplied function to read the netlist
-import notes.M3.m3_3_1_comp_constants as COMP          # needed for the common constants
+from read_netlist import read_netlist  # supplied function to read the netlist
+import comp_constants as COMP          # needed for the common constants
 
 # this is the list structure that we'll use to hold components:
 # [ Type, Name, i, j, Value ]
