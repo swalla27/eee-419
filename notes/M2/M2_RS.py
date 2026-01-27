@@ -229,7 +229,7 @@ print(data_df.iloc[:,1])        # print a specific col by index
 
 """ It sounds like .iloc is looking for indices, whereas .loc looks at the actual names """
 
-import notes.M2.scatchpad as scratch
+import scatchpad as scratch
 
 print(scratch.a)
 

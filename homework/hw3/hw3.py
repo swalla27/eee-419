@@ -8,8 +8,8 @@
 
 import numpy as np                     # needed for arrays
 from numpy.linalg import solve         # needed for matrices
-from m3_3_2_read_netlist import read_netlist  # supplied function to read the netlist
-import m3_3_1_comp_constants as COMP          # needed for the common constants
+from read_netlist import read_netlist  # supplied function to read the netlist
+import comp_constants as COMP          # needed for the common constants
 
 # this is the list structure that we'll use to hold components:
 # [ Type, Name, i, j, Value ]
@@ -27,9 +27,9 @@ import m3_3_1_comp_constants as COMP          # needed for the common constants
 def get_dimensions(netlist):           # pass in the netlist
 
     ### EXTRA STUFF HERE!
-    pass
+
 #    print(' Nodes ', node_cnt, ' Voltage sources ', volt_cnt)
-    # return node_cnt,volt_cnt
+    return node_cnt,volt_cnt
 
 ################################################################################
 # Function to stamp the components into the netlist                            #

@@ -2,7 +2,7 @@
 # read netlist file and create a list of lists...                              #
 ################################################################################
 
-import m3_3_1_comp_constants as COMP    # get the constants needed for lists
+import comp_constants as COMP    # get the constants needed for lists
 from sys import exit             # needed to exit on error
 
 ################################################################################
