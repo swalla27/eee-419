@@ -1,67 +1,103 @@
-################################################################################
-# Created on Fri Aug 24 13:36:53 2018                                          #
-#                                                                              #
-# @author: olhartin@asu.edu; updates by sdm                                    #
-#                                                                              #
-# Program to solve resister network with voltage and/or current sources        #
-################################################################################
+# Steven Wallace
+# Dr. Ewaisha
+# EEE 419
+# 28 January 2026
 
-import numpy as np                     # needed for arrays
-from numpy.linalg import solve         # needed for matrices
-from read_netlist import read_netlist  # supplied function to read the netlist
-import comp_constants as COMP          # needed for the common constants
+# Homework 3
+# I did not use AI at all to complete this assignment
 
-# this is the list structure that we'll use to hold components:
-# [ Type, Name, i, j, Value ]
 
-################################################################################
-# How large a matrix is needed for netlist? This could have been calculated    #
-# at the same time as the netlist was read in but we'll do it here             #
-# Input:                                                                       #
-#   netlist: list of component lists                                           #
-# Outputs:                                                                     #
-#   node_cnt: number of nodes in the netlist                                   #
-#   volt_cnt: number of voltage sources in the netlist                         #
-################################################################################
 
-def get_dimensions(netlist):           # pass in the netlist
+import numpy as np 
+from numpy.linalg import solve
+from read_netlist import read_netlist
+import comp_constants as COMP
 
-    ### EXTRA STUFF HERE!
 
-#    print(' Nodes ', node_cnt, ' Voltage sources ', volt_cnt)
-    return node_cnt,volt_cnt
+def get_dimensions(netlist: list):
+    """This function will accept the netlist as an input, outputting the number of nodes and the number of voltage sources.\n
+       It does not care what the nodes are named, they can even be strings. I'm using a set to count the number of unique nodes, which
+       should be pretty robust."""
 
-################################################################################
-# Function to stamp the components into the netlist                            #
-# Input:                                                                       #
-#   y_add:    the admittance matrix                                            #
-#   netlist:  list of component lists                                          #
-#   currents: the matrix of currents                                           #
-#   node_cnt: the number of nodes in the netlist                               #
-# Outputs:                                                                     #
-#   node_cnt: the number of rows in the admittance matrix                      #
-################################################################################
+    volt_cnt = 0
+    set_of_nodes = set()
 
-def stamper(y_add,netlist,currents,node_cnt):
-    # return the total number of rows in the matrix for
-    # error checking purposes
-    # add 1 for each voltage source...
+    for component in netlist: # Loop through each component in the netlist
+        if component[COMP.TYPE] == COMP.VS: # Determine whether we have a voltage source here, and if so, then add to the count
+            volt_cnt += 1
+        
+        if component[COMP.I] not in set_of_nodes:
+            set_of_nodes.add(component[COMP.I])
+        
+        if component[COMP.J] not in set_of_nodes:
+            set_of_nodes.add(component[COMP.J])
 
-    for comp in netlist:                  # for each component...
-        #print(' comp ', comp)            # which one are we handling...
+    node_cnt = len(set_of_nodes)
 
-        # extract the i,j and fill in the matrix...
-        # subtract 1 since node 0 is GND and it isn't included in the matrix
-        i = comp[COMP.I] - 1
-        j = comp[COMP.J] - 1
+    print(f'Number of Nodes: {node_cnt}\nNumber of Voltage Sources: {volt_cnt}')
+    return node_cnt, volt_cnt
 
-        if ( comp[COMP.TYPE] == COMP.R ):           # a resistor
-            if (i >= 0):                            # add on the diagonal
-                y_add[i,i] += 1.0/comp[COMP.VAL]
-            
-            #EXTRA STUFF HERE!
+def stamper(y_add: np.array, netlist: list, currents: np.array, voltages: np.array, node_cnt: int):
 
-    return node_cnt  # should be same as number of rows!
+    resistors = list()
+    curr_sources = list()
+    volt_sources = list()
+
+    for component in netlist:
+        if component[COMP.TYPE] == COMP.R:
+            resistors.append(component)
+        elif component[COMP.TYPE] == COMP.IS:
+            curr_sources.append(component)
+        elif component[COMP.TYPE] == COMP.VS:
+            volt_sources.append(component)
+
+    for resistor in resistors:
+        i = resistor[COMP.I]
+        j = resistor[COMP.J]
+
+        y_add[i,i] += 1.0/resistor[COMP.VAL]
+        y_add[j,j] += 1.0/resistor[COMP.VAL]
+        y_add[i,j] -= 1.0/resistor[COMP.VAL]
+        y_add[j,i] -= 1.0/resistor[COMP.VAL]
+
+    for curr_source in curr_sources:
+        i = curr_source[COMP.I]
+        j = curr_source[COMP.J]
+
+        currents[i] -= curr_source[COMP.VAL]
+        currents[j] += curr_source[COMP.VAL]
+
+    volt_source_id = 0
+    for volt_source in volt_sources:
+        i = volt_source[COMP.I]
+        j = volt_source[COMP.J]
+
+        M = node_cnt + volt_source_id
+
+        # Step 1: The admittance matrix
+        y_add[M,:] = 0
+        y_add[:,M] = 0
+        y_add[M,i] = 1
+        y_add[i,M] = 1
+        y_add[M,j] = -1
+        y_add[j,M] = -1
+
+        # Step 2: The current matrix
+        currents[M] = volt_source[COMP.VAL]
+
+        # Step 3: The voltage matrix
+        voltages[M] = 0
+
+        # Step 4: Increment the voltage source id
+        volt_source_id += 1
+
+    # I am deleting the first row and column because they would make the matrix singular
+    y_add = np.delete(y_add, (0), axis = 0)
+    y_add = np.delete(y_add, (0), axis = 1)
+    currents = np.delete(currents, (0), axis = 0)
+    voltages = np.delete(voltages, (0), axis = 0)
+
+    return y_add, currents, voltages
 
 ################################################################################
 # Start the main program now...                                                #
@@ -75,4 +111,13 @@ for index in range(len(netlist)):
     print(netlist[index])
 print("\n")
 
-#EXTRA STUFF HERE!
+node_cnt, volt_cnt = get_dimensions(netlist)
+
+voltages = np.zeros([node_cnt + volt_cnt, 1])
+currents = np.zeros([node_cnt + volt_cnt, 1])
+y_add = np.zeros([node_cnt + volt_cnt, node_cnt + volt_cnt])
+
+y_add, currents, voltages = stamper(y_add, netlist, currents, voltages, node_cnt)
+print(y_add)
+voltages = solve(y_add, currents)
+print(voltages)
