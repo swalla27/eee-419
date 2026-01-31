@@ -14,7 +14,9 @@ import comp_constants as COMP
 def get_dimensions(netlist: list):
     """This function will accept the netlist as an input, outputting the number of nodes and the number of voltage sources.\n
        It does not care what the nodes are named, they can even be strings. I'm using a set to count the number of unique nodes, which
-       should be pretty robust."""
+       should be pretty robust.\n
+       I've just read that the assignment description says we can assume the nodes are numbered sequentially. 
+       I'm going to leave this alone, it works just fine like this."""
 
     # Initialize the voltage source count variable and the set containing every node name
     volt_cnt = 0
@@ -42,8 +44,8 @@ def get_dimensions(netlist: list):
 def stamper(y_add: np.array, netlist: list, currents: np.array, voltages: np.array, node_cnt: int):
     """The purpose of this function is to stamp the admittance matrix and the current/voltage vectors according to the netlist.\n
        I will handle this in several steps, firstly the resistors, then the current sources, and finally the voltage sources.\n
-       However, I will remove the 0th row and the 0th column at the end of this procedure.\n
-       The function will output the modified admittance matrix along with the current/voltage vectors."""
+       I will then remove the 0th row and the 0th column at the end of this procedure.\n
+       The function will output the modified admittance matrix along with the current/voltage vectors to be solved."""
 
     ########################################################
     ##### Sort the components into lists based on type #####
@@ -172,6 +174,8 @@ y_add = np.zeros([node_cnt + volt_cnt, node_cnt + volt_cnt])
 y_add, currents, voltages = stamper(y_add, netlist, currents, voltages, node_cnt)
 
 # This step uses numpy to solve for the voltages based on the admittance matrix and the current vector
+print(y_add)
+print(currents)
 voltages = solve(y_add, currents)
 
 # Print the results to the terminal in the requested format

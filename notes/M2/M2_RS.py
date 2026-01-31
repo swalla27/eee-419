@@ -56,20 +56,16 @@ x_values  = np.linspace(a, b, n)
 # #     func_0[index] = x_value           # create y=x
 # #     func_1[index] = x_value**2        # create y=x**2
 
-# print("x_val =",x_values)
-# print("func_0 =",func_0)
-# print("func_1 =",func_1)
-# plot func_0
-# plt.plot(x_values,linear(x_values),label='f0=x')  # data to plot
-# plot func_1 to the same plot
-plt.plot(x_values,exponential(x_values),label='f1=x**2')  # data to plot
-# # Fill in the Y only and let Python infer the X:
-# plt.plot(func_1,label='f1=x^2')
-plt.xlabel("X")           # set axis labels
+plt.plot(x_values,exponential(x_values),label='f1=x**2')
+plt.xlabel("X")
 plt.ylabel("Function")
 plt.title("A Plot")
 plt.legend
 plt.grid(True)
+
+
+
+
 plt.show() 
 
 """ Never forget about adding the plt.show!!! """
