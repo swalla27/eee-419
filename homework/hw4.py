@@ -11,11 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-# plt.close('all')
 root = tk.Tk()
 
-num_rows = 8
-num_cols = 2
 M = 20
 N = 60
 
@@ -80,7 +77,7 @@ def calculate_fx(mean_return, std_dev_return, yearly_contribution, years_of_cont
         sys.exit()
 
     elif A>B:
-        print('Error! The number of contribution years must be less than the number of years to retirement.')
+        print('Error! The number of contribution years must be less than the number of years to retirement. Please try again.')
         root.destroy()
         plt.close()
         sys.exit()
