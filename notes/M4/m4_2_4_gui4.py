@@ -11,7 +11,8 @@ from tkinter import *    # get the GUI package
 ################################################################################
 
 def chg_lab(label):
-    label.configure(text = "new label")
+    # label.configure(text = "new label")
+    label['text'] = 'new label'
 
 root = Tk()                                  # start the gui
 label = Label(root, text = "original label") # create a label and place it
@@ -20,6 +21,9 @@ Button(root,text='change the label',         # Button to execute the change
        command = lambda: chg_lab(label)).grid(row=1)
 
 Button(root,text="Exit",width=12,command=root.destroy).grid(row=2)
+
+# label2 = Label(root, text='additional label').grid(row=1)
+
 
 mainloop()    # start the GUI
 

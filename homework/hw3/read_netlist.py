@@ -17,7 +17,7 @@ from sys import exit             # needed to exit on error
 ################################################################################
 
 def read_netlist():              # read a netlist - no input argument!
-    filename = "/home/steven-wallace/Documents/asu/eee-419/homework/hw3/testcase3.txt"
+    filename = "/home/steven-wallace/Documents/asu/eee-419/homework/hw3/quiz_m4.txt"
     #print(filename)                                      # debug statement
     fh = open(filename,"r")                               # open the file
     lines = fh.readlines()                                # read the file

@@ -178,6 +178,8 @@ print(y_add)
 print(currents)
 voltages = solve(y_add, currents)
 
+input()
+
 # Print the results to the terminal in the requested format
 if volt_cnt < 1:
     print(f'Voltages vector is {voltages.T[0]}')
