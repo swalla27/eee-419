@@ -104,17 +104,20 @@ def calculate_fx(mean_return, std_dev_return, yearly_contribution, years_of_cont
         B = int(years_to_retirement.get()) # The number of years until retirement
     except:
         print('Error! There was a problem with the values you entered. Please try again.')
-        shut_down_action()
+        output_label.config(text='Invalid values were entered. Please try again.')
+        return
 
     # The user entered incorrect values for A, B, or both. The program cannot continue in this situation
     if A>N or B>N:
         print('Error! Contributions must stop at or prior to retirement. Please try again.')
-        shut_down_action()
+        output_label.config(text='Invalid values were entered. Please try again.')
+        return
 
     # The user said they will retire before the end of their contributions. We will assume this cannot happen
     elif A>B:
         print('Error! The number of contribution years must be less than the number of years to retirement. Please try again.')
-        shut_down_action()
+        output_label.config(text='Invalid values were entered. Please try again.')
+        return
 
     ###############################
     ##### Run the simulations #####
