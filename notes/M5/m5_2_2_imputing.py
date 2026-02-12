@@ -4,7 +4,7 @@ import pandas as pd                          # package for reading data frames
 import numpy as np                           # needed for "not a number"
 from sklearn.impute import SimpleImputer as simp   # learning package
 
-df = pd.read_csv("m5_2_2_imputing.txt")          # read the data frame
+df = pd.read_csv("notes/M5/m5_2_2_imputing.txt")          # read the data frame
 print("original data")                       # and show how it looks
 print(df,"\n")
 

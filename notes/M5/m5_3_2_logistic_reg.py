@@ -30,8 +30,7 @@ X_test_std = sc.transform(X_test)      # and SAME transformation of test data
 #    ovr -> binary problem for each label
 
 for c_val in [1,10,100]:
-    lr = LogisticRegression(C=c_val, solver='liblinear', \
-                            multi_class='ovr', random_state=0)
+    lr = LogisticRegression(C=c_val, solver='liblinear', multi_class='ovr', random_state=0)
     lr.fit(X_train_std, y_train)         # apply the algorithm to training data
 
     # combine the train and test data

@@ -4,7 +4,7 @@
 import numpy as np                      # needed for arrays and math
 import pandas as pd                     # needed to read the data
 
-iris = pd.read_csv('m5_iris.csv')       # read in the data
+iris = pd.read_csv('notes/M5/m5_2_7_iris.csv')       # read in the data
 
 # create the correlation
 # take the absolute value since large negative are as useful as large positive

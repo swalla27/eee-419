@@ -8,6 +8,12 @@ import pandas as pd
 # students: how many students with each major
 # cols:     the column headings for our dataframe
 
+# Pandas series vs dataframe objects
+# https://stackoverflow.com/questions/26047209/what-is-the-difference-between-a-pandas-series-and-a-single-column-dataframe
+
+# Adding entries to a pandas dataframe? Better to use a list of dictionaries and then create a df at the end
+# https://stackoverflow.com/questions/10715965/create-a-pandas-dataframe-by-appending-one-row-at-a-time
+
 majors = ['CS','CSE','EE','Physics','Chemistry']   # majors
 students = [15, 15, 35, 3, 2]                      # count of students
 cols = [ 'major', 'count' ]                        # column headings
@@ -179,7 +185,12 @@ print('\nfourth row, second element')
 print(combo.loc[3].iat[1])
 
 print('\nuse a filter')
+print('boolean mask')
+print(combo['count'] > 10)
+print('\nfiltered df')
 print(combo[combo['count'] > 10])
+
+exit()
 
 # find correlations
 print('\ncorrelation between columns')
