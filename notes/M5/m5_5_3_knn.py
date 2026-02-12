@@ -1,7 +1,7 @@
 # K-Nearest Neighbors example
 # author: Allee, Hartin updated by sdm
 
-from m5_plotdr import plot_decision_regions            # visualize results
+from m5_5_4_plotdr import plot_decision_regions            # visualize results
 import matplotlib.pyplot as plt                        # update the plot
 from sklearn import datasets                           # read the data
 import numpy as np                                     # for arrays

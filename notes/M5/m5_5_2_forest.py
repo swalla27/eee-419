@@ -1,7 +1,7 @@
 # Random Forest example
 # author: Allee, Hartin updated by sdm
 
-from m5_plotdr import plot_decision_regions            # plot results
+from m5_5_4_plotdr import plot_decision_regions            # plot results
 import matplotlib.pyplot as plt                        # add to plot
 from sklearn import datasets                           # read data
 import numpy as np                                     # for arrays

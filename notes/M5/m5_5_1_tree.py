@@ -1,7 +1,7 @@
 # Example Decision Tree
 # author: d updated by sdm
 
-from m5_plotdr import plot_decision_regions             # for plotting
+from m5_5_4_plotdr import plot_decision_regions             # for plotting
 import matplotlib.pyplot as plt                         # add to plot
 from sklearn import datasets                            # read the data
 import numpy as np                                      # for arrays
