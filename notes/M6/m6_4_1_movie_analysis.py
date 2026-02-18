@@ -10,6 +10,9 @@ from sklearn.pipeline import Pipeline                     # create tool chain
 from sklearn.linear_model import LogisticRegression       # learning algorithm
 from sklearn.feature_extraction.text import TfidfVectorizer  # words to numbers
 
+import sys
+import time
+
 ################################################################################
 # Function to remove HTML, put emoticons at end, change to lower case          #
 # Input:                                                                       #
@@ -55,8 +58,10 @@ def tokenizer_porter(text):
 
 # start the main code here...
 
-df = pd.read_csv('./m6_4_1_movie_reviews.csv', encoding='latin-1') # read the data
+df = pd.read_csv('/home/steven-wallace/Documents/asu/eee-419/notes/M6/m6_4_1_movie_reviews.csv', encoding='latin-1') # read the data
 print(df.head(3))                                           # check 1st entries
+
+t0 = time.time()
 
 porter = PorterStemmer()             # create a stemmer
 
@@ -67,7 +72,7 @@ stop = stopwords.words('english')    # get the stop words
 df['review']=df['review'].apply(preprocessor)     # preprocess the data
 
 # estimated 10+ hours to run 25000 ; split the train and test data
-N=1000
+N=25000
 X_train = df.loc[:N, 'review'].values
 y_train = df.loc[:N, 'sentiment'].values
 X_test = df.loc[N:2*N, 'review'].values
@@ -100,10 +105,13 @@ lr_tfidf = Pipeline([('vect',tfidf),
 # Create the actual grid search object and then do the fit
 # The CV is for Cross Validation, splitting the training data 5 ways
 gs_lr_tfidf = GridSearchCV(lr_tfidf, param_grid, scoring='accuracy',cv=5,
-                           verbose=1, n_jobs=4)
+                           verbose=1, n_jobs=-2)
 gs_lr_tfidf.fit(X_train,y_train)
 
 print('Best parameter set: %s' % gs_lr_tfidf.best_params_)
 print('CV Accuracy: %.3f' % gs_lr_tfidf.best_score_)
 clf = gs_lr_tfidf.best_estimator_
 print('Test Accuracy: %.3f' % clf.score(X_test, y_test))
+
+t1 = time.time()
+print(f'finished in {t1-t0:.2f} seconds')

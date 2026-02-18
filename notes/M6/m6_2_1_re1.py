@@ -1,5 +1,6 @@
 # interesting string and regular expression examples
 import re                               # get the regular expression module
+# https://www.w3schools.com/python/python_regex.asp
 
 # using the re module is more powerful as a splitter
 # general form: re.split(delimiters,string)
