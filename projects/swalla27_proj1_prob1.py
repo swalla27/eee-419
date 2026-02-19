@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 #####################
 
 # First, read the heart data csv into a df. 
-df = pd.read_csv('projects/heart1.csv')
+df = pd.read_csv('projects/proj1_data.csv')
 
 # Next, print characteristics of the data to the terminal, such as the header, some stats, correlation and covariance matrices.
 print('\nFirst several rows of these data:')

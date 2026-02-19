@@ -47,7 +47,7 @@ def print_results(model, model_name: str):
     print(f'\tCombined Accuracy: {accuracy_score(y_combined, y_combined_pred):.2f}')
 
 # First, read the heart data csv into a df. 
-df = pd.read_csv('projects/heart1.csv')
+df = pd.read_csv('projects/proj1_data.csv')
 
 X = df.iloc[:,0:12] # Everything except for the final column.
 y = df.iloc[:,13] # The final column, which is the output variable.
