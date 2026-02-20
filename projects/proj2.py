@@ -18,136 +18,124 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import GridSearchCV
 
 from warnings import filterwarnings
 filterwarnings('ignore')
 
+##################################
+##### Constants and Settings #####
+##################################
+
+# This random seed feeds into both the MLP Classifier and the test/train splitter.
 RANDOM_SEED = 0
 
+# Define the project folder, then construct paths to the data and output graph.
 proj_folder = '/home/steven-wallace/Documents/asu/eee-419/projects'
 data_path = os.path.join(proj_folder, 'proj2_data.csv')
-graph_path = os.path.join(proj_folder, 'proj2_acc_graph.png')
+graph_path = os.path.join(proj_folder, 'proj2_graph.png')
 
+################################
+##### Initial Data Shaping #####
+################################
+
+# Read the data from a csv file into a pandas dataframe.
 df = pd.read_csv(data_path, header=None)
 
+# This will drop the final column, because I want everything to be numeric. 
+# That last column is strings and I don't want it.
 df = df.loc[:, df.columns != 61]
 
+# I use the number of columns in my for loop below.
+_, num_cols = df.shape
 
-# new_col_names = dict()
-# for idx, _ in enumerate(df.columns):
-#     new_col_names.update({idx: 'Col' + str(idx)})
-
-# df = df.rename(columns=new_col_names)
-
-# corr = df.corr()
-# corr *= np.tri(*corr.values.shape, k=-1).T
-# corr_unstack = corr.unstack()
-# x = corr_unstack.copy()
-# x.sort_values(inplace=True, ascending=False)
-# print(f'Top 10:\n{x[:10]}')
-# print(f'Bottom 10:\n{x[-10:]}')
-
-num_rows, num_cols = df.shape
-
+# This will split the dataframe into inputs (columns 0-59) and the output (column 60).
 X = df.loc[:, df.columns != 60]
 y = df.loc[:, 60]
 
+####################################
+##### Machine Learning Section #####
+####################################
 
-def custom_split(N: int, X: pd.DataFrame, y: pd.Series):
-
-    X_filtered = X.loc[:, :N]
-
-    X_train, X_test, y_train, y_test = \
-         train_test_split(X_filtered, y, test_size=0.3, random_state=RANDOM_SEED)
-    
-    sc = StandardScaler()
-    sc.fit(X_train)
-    X_train = sc.transform(X_train)
-    X_test = sc.transform(X_test)
-
-    return X_train, X_test, y_train, y_test
-
-
+# I am initializing empty dictionaries to store information about each run of the for loop.
+# Technically, only the test_accuracies and conf_matrices variables are necessary, but I found the others useful during testing.
 test_accuracies = dict()
 comb_accuracies = dict()
 num_missed_mines = dict()
 conf_matrices = dict()
 
+# This loop will train a machine learning algorithm, test it, and collect important output variables into dictionaries.
+# Each iteration uses a different number of columns in the input space. The first one will only use a single column, and
+# the second will use two. It will continue in this way until all columns are included, just as described in the prompt.
+
+for N in range(1, num_cols+1):
+
+    # This will filter the input data based on the variable N. Each iteration takes a different number of input columns.
+    X_filtered = X.loc[:, :N]
+
+    # Create the test and training split based upon the filtered input data.
+    X_train, X_test, y_train, y_test = \
+         train_test_split(X_filtered, y, test_size=0.3, random_state=RANDOM_SEED)
+    
+    # This section will use a standard scalar to transform the data.
+    sc = StandardScaler()
+    sc.fit(X_train)
+    X_train = sc.transform(X_train)
+    X_test = sc.transform(X_test)
+
+    # This section will define an instance of the MLPClassifier class with the listed settings.
+    # I did test this out with the "GridSearchCV" function and a ton of different combinations,
+    # and this was the best combination that I found. More details are included in the report.
+    model = MLPClassifier(hidden_layer_sizes=(100), activation='relu', max_iter=2000, 
+                        alpha=0.0001, solver='adam', tol=1e-5, random_state=RANDOM_SEED)
+
+    # This will fit the model based upon the training data.
+    model.fit(X_train, y_train)
+
+    # Use the model to predict the outputs for the test data.
+    y_pred = model.predict(X_test)
+
+    # Find the test accuracy by comparing the actual outputs with the predicted outputs.
+    test_accuracy = accuracy_score(y_test, y_pred)
+
+    # Combine the training and testing data into input and output variables, then make predictions for the combined dataset.
+    X_comb = np.vstack((X_train, X_test))
+    y_comb = np.hstack((y_train, y_test))
+    y_comb_pred = model.predict(X_comb)
+
+    # Find the accuracy of the model for this combined dataset.
+    comb_accuracy = accuracy_score(y_comb, y_comb_pred)
+
+    # Create the confusion matrix for this iteration of the for loop.
+    cmat = confusion_matrix(y_comb, y_comb_pred)
+
+    # Update the dictionaries (test accuracy, combined accuracy, number of missed mines, and confusion matrices) with the output data.
+    test_accuracies.update({N: test_accuracy})
+    comb_accuracies.update({N: comb_accuracy})
+    num_missed_mines.update({N: int(cmat[1][0])})
+    conf_matrices.update({N: cmat})
+
+    # Print a summary of the results for this iteration of the for loop as described in the prompt.
+    print(f'Number of Components = {N}; Test Accuracy = {test_accuracy:.3f}')
 
 
+#########################
+##### Final Results #####
+#########################
 
-# for N in range(1, num_cols+1):
-N = 50
+# Find the maximum test accuracy using that dictionary, then extract the N value which obtained it and the confusion matrix associated with it.
+max_acc_Nvalue = sorted(test_accuracies, key=test_accuracies.get, reverse=True)[0]
+max_acc = test_accuracies[max_acc_Nvalue]
+optimal_cmat = conf_matrices[max_acc_Nvalue]
 
-X_train, X_test, y_train, y_test = custom_split(N, X, y)
+# Print a description of this run with the optimal test accuracy as descibed in the prompt.
+print(f'\nMax Test Accuracy = {max_acc:.3f}; Number of Components Used = {max_acc_Nvalue}')
+print(f'Optimal Confusion Matrix:\n{optimal_cmat}')
 
-model = MLPClassifier(hidden_layer_sizes=(100), activation='relu', max_iter=2000, 
-                    alpha=0.0001, solver='adam', tol=1e-5, random_state=RANDOM_SEED)
-
-model.fit(X_train, y_train)
-
-y_pred = model.predict(X_test)
-
-test_accuracy = accuracy_score(y_test, y_pred)
-
-X_comb = np.vstack((X_train, X_test))
-y_comb = np.hstack((y_train, y_test))
-
-y_comb_pred = model.predict(X_comb)
-
-comb_accuracy = accuracy_score(y_comb, y_comb_pred)
-
-cmat = confusion_matrix(y_comb, y_comb_pred)
-
-test_accuracies.update({N: test_accuracy})
-comb_accuracies.update({N: comb_accuracy})
-num_missed_mines.update({N: int(cmat[1][0])})
-conf_matrices.update({N: cmat})
-
-print(f'Number of Components = {N}; Test Accuracy = {test_accuracy:.3f}')
-
-
-
-
-# results_df = pd.DataFrame([test_accuracies, comb_accuracies, num_missed_mines]).transpose()
-# results_df.columns = ['Test Accuracies', 'Combined Accuracies', 'Number of Missed Mines']
-
-# results_df.sort_values(by='Combined Accuracies', axis=0, ascending=True)
-
-# print(results_df)
-
-# max_acc_Nvalue = sorted(test_accuracies, key=test_accuracies.get, reverse=True)[0]
-# max_acc = test_accuracies[max_acc_Nvalue]
-# optimal_cmat = conf_matrices[max_acc_Nvalue]
-
-# print(f'\nMax Test Accuracy = {max_acc:.3f}; Number of Components Used = {max_acc_Nvalue}')
-# print(f'Optimal Confusion Matrix:\n{optimal_cmat}')
-
-# plt.scatter(test_accuracies.keys(), test_accuracies.values())
-# plt.xlabel('Number of Components Used')
-# plt.ylabel('Test Accuracy')
-# plt.title('Test Accuracy vs Number of Components Used')
-# plt.grid(True)
-# plt.savefig(graph_path, dpi=300)
-# plt.show()
-
-param_grid = {'hidden_layer_sizes': [10, 100, 200],
-              'activation': ['relu', 'linear', 'logistic', 'tanh'],
-              'max_iter': [1000, 2000, 5000],
-              'alpha': [1e-4, 1e-5, 1e-6],
-              'solver': ['lbfgs', 'sgd', 'adam'],
-              'tol': [1e-3, 1e-4, 1e-5]}
-
-model = MLPClassifier(hidden_layer_sizes=(100), activation='logistic', max_iter=2000, 
-                      alpha=0.00001, solver='adam', tol=0.0001, random_state=RANDOM_SEED)
-
-gs_cv_model = GridSearchCV(model, param_grid, scoring='accuracy', 
-                           cv=5, verbose=1, n_jobs=-2)
-
-
-gs_cv_model.fit(X_train, y_train)
-print('Best parameter set: %s' % gs_cv_model.best_params_)
-print('CV Accuracy: %.3f' % gs_cv_model.best_score_)
-clf = gs_cv_model.best_estimator_
-print('Test Accuracy: %.3f' % clf.score(X_test, y_test))
+# Create a graph of the test accuracy vs the number of features included, complete with axis labels, a title, and grid.
+plt.scatter(test_accuracies.keys(), test_accuracies.values())
+plt.xlabel('Number of Components Used')
+plt.ylabel('Test Accuracy')
+plt.title('Test Accuracy for Mine Identification Task')
+plt.grid(True)
+plt.savefig(graph_path, dpi=300)
+plt.show()
