@@ -45,12 +45,12 @@ df = pd.read_csv(data_path, header=None)
 # That last column is strings and I don't want it.
 df = df.loc[:, df.columns != 61]
 
-# I use the number of columns in my for loop below.
-_, num_cols = df.shape
-
 # This will split the dataframe into inputs (columns 0-59) and the output (column 60).
 X = df.loc[:, df.columns != 60]
 y = df.loc[:, 60]
+
+# I use the number of columns in my for loop below.
+_, num_cols = X.shape
 
 ####################################
 ##### Machine Learning Section #####
@@ -123,6 +123,8 @@ for N in range(1, num_cols+1):
 #########################
 
 # Find the maximum test accuracy using that dictionary, then extract the N value which obtained it and the confusion matrix associated with it.
+# I referenced this link below for the line of code that finds the key associated with the max value in this dictionary.
+# https://www.geeksforgeeks.org/python/python-get-key-with-maximum-value-in-dictionary/
 max_acc_Nvalue = sorted(test_accuracies, key=test_accuracies.get, reverse=True)[0]
 max_acc = test_accuracies[max_acc_Nvalue]
 optimal_cmat = conf_matrices[max_acc_Nvalue]
