@@ -1,5 +1,4 @@
 import re
 
-str4 = "from: 1238 f453.589 subject: nothing of interest"
-
-print(re.findall(r'\b(\d{3,})',str4))
+str4 = "from: steve.millman@asu.edu subject: nothing of interest" 
+print(re.search(r'([\w.]+)@([\w.]+)', str4).group(2))
