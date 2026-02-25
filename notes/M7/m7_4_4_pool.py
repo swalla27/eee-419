@@ -6,10 +6,10 @@ import numpy as np                 # needed for arrays
 
 POOL_DIM = 2                       # size of stride
 
-FILE_CAT = '25537304817_4a55dc6092_b.jpg'
-FILE_ZEB = 'zebra.jpg'
-NAME_CAT = 'cat_'
-NAME_ZEB = 'zeb_'
+FILE_CAT = 'notes/M7/cat.jpg'
+FILE_ZEB = 'notes/M7/zebra.jpg'
+NAME_CAT = 'notes/M7/images/cat_'
+NAME_ZEB = 'notes/M7/images/zeb_'
 NUM_PHOTOS = 2
 NUM_POOLS = 2
 files = [FILE_CAT,FILE_ZEB]
