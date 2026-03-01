@@ -15,8 +15,9 @@ import sys
 import os
 
 NUM_BITS = 10_000
-NUM_FEAT = 3
-FREQ = 1 / NUM_FEAT
+NUM_SAMP = 20
+FREQ = 10e6
+PERIOD = 1 / FREQ
 OMEGA = 2*np.pi*FREQ
 SNR_RAT = 1
 SIGMA = np.sqrt(0.5 / SNR_RAT)
@@ -24,53 +25,71 @@ SIGMA = np.sqrt(0.5 / SNR_RAT)
 rng = np.random.default_rng()
 random_bits = rng.integers(0, 2, NUM_BITS)
 
-time_array = np.linspace(0, FREQ, NUM_FEAT)
+sample_times = np.linspace(0, PERIOD, NUM_SAMP)
 
-clean_array = np.zeros([NUM_BITS, NUM_FEAT])
+clean_array = np.zeros([NUM_BITS, NUM_SAMP])
 for idx, _ in enumerate(clean_array):
-    clean_array[idx] = np.cos(OMEGA*time_array + random_bits[idx]*np.pi)
+    clean_array[idx] = np.cos(OMEGA*sample_times + random_bits[idx]*np.pi)
 
-noise_array = rng.normal(0, SIGMA, [NUM_BITS, NUM_FEAT])
+noise_array = rng.normal(0, SIGMA, [NUM_BITS, NUM_SAMP])
 dirty_array = clean_array + noise_array
-
 print(clean_array)
+print(noise_array)
 print(dirty_array)
+# sys.exit()
 
-freq_array = np.arange(0.01,0.5,0.01)               # array of frequencies
+freq_guesses = np.linspace(FREQ/10, FREQ*10, 100)
 
-# Remember that matrix products are done right to left!
-# And each entry in J is:
-# J = Xt * H * inv( Ht * H ) * Ht * X
-# where X is the sample array and Xt its transpose
-# H is the array of sine and cos entries for a particular frequency
-# inv() is the inverse of the contents
-# and * is the dot product
+def estimate_phase(sample_times: np.array, sample_values: np.array, freq_guesses: np.array):
+    """This function will estimate the phase of a sampled waveform.\n
+       It requires an array of frequency guesses, sample values, and the times at which those samples were taken."""
+    
+    J = list()
+    h = np.zeros((NUM_SAMP, 2))
+    for freq in freq_guesses:
+        h[:,0] = np.cos(2*np.pi*freq*sample_times)
+        h[:,1] = np.sin(2*np.pi*freq*sample_times)
+        a = np.dot(h.T, sample_values)
+        b = inv(np.dot(h.T, h))
+        c = np.dot(b, a)
+        d = np.dot(h, c)
+        J.append(np.dot(sample_values.T, d))
 
-J = []                                      # maximize J to find f 
-h = np.zeros((NUM_FEAT,2))                         # create the H matrix
-for f in freq_array:                                # for every frequency to try...
-    h[:,0] = np.cos(2 * np.pi * f * time_array)      # column 0 gets the cosines
-    h[:,1] = np.sin(2 * np.pi * f * time_array)      # column 1 gets the sines
-    a = np.dot(h.transpose(),x)             # Ht * X
-    b = inv(np.dot(h.transpose(),h))        # inverse of the product Ht * H
-    c = np.dot(b,a)                         # dot the above two terms
-    d = np.dot(h,c)                         # and with H
-    J.append(np.dot(x.transpose(),d))       # and with Xt and into the list
+    idx_max = np.argmax(J)
+    f_est = freq_guesses[idx_max]
 
-print(J)
-indexmax = np.argmax(J)                     # find the index of largest value
-f_est = freq_array[indexmax]                        # then get the corresponding freq
-print('freq est', f_est, '\tvs actual', FREQ)
+    h[:, 0] = np.cos(2*np.pi*f_est*sample_times)
+    h[:, 1] = np.sin(2*np.pi*f_est*sample_times)
 
-h[:,0] = np.cos(2 * np.pi * f_est * time_array)      # set up H with that frequency
-h[:,1] = np.sin(2 * np.pi * f_est * time_array)
+    a = np.dot(h.T, sample_values)
+    b = inv(np.dot(h.T, h))
+    c = np.dot(b, a)
 
-# apply least squares estimator
-# [alpha1 alpha2] = inv(Ht * H) * Ht * X
+    d = np.arctan(abs(c[1]/c[0]))
+    phase_est = np.where(c[0] > 0, d, np.pi-d)
+    return phase_est
 
-a = np.dot(h.transpose(),x)             # Ht * X
-b = inv(np.dot(h.transpose(),h))        # inverse of Ht * H
-c = np.dot(b,a)                         # product of the above
+def evaluate_estimate(phase_est: float, correct_bit: float):
+    """This function accepts a phase estimate and the correct bit, then outputs 
+    a boolean stating whether that bit was interpreted correctly at the receiver."""
 
-phase_est = np.arctan(-c[1]/c[0])       # compute the estimated phase
-print('phase_est', phase_est, '\tvs actual', phi)
+    if (phase_est > np.pi/2) or (phase_est < -np.pi/2):
+        bit_est = 1
+    else:
+        bit_est = 0
+    
+    if bit_est == correct_bit:
+        return True
+    else:
+        return False
+
+
+bit_errors = 0
+for idx, sample in enumerate(dirty_array):
+    phase_est = estimate_phase(sample_times, sample, freq_guesses)
+
+    if not evaluate_estimate(phase_est, random_bits[idx]):
+        bit_errors += 1
+
+ber = bit_errors / random_bits.size
+print(ber)
