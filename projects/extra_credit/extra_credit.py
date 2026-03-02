@@ -7,6 +7,14 @@
 
 # I did not use AI at all to complete this assignment
 
+"""
+The purpose of this program is to demonstrate the interpretation of a phase modulated waveform at an RF receiver.
+I will demodulate this waveform using classical methods and again with KNN, then compare the results.
+This program is broken into the following sections: constants and imports, then functions, and then the execution stage.
+The program will generate data and demodulate the signal once with either method, then print those results to the terminal.
+If the variable "MAKE_GRAPHS" is set to True, then it will also create a graph of BER vs SNR. 
+"""
+
 #################################
 ##### Constants and Imports #####
 #################################
@@ -77,9 +85,9 @@ def generate_data(snr_dB: float):
 
     return random_bits, sample_times, dirty_array
 
-############################################
-##### Classical demodulation functions #####
-############################################
+###########################################################
+##### Estimate the phase using classical demodulation #####
+###########################################################
 
 def estimate_phase(sample_times: np.array, sample_values: np.array, freq_guesses: np.array):
     """This function will estimate the phase of a sampled waveform.
@@ -159,10 +167,6 @@ def evaluate_estimate(phase_est: float, correct_bit: int):
         return True
     else:
         return False
-
-###########################################################
-##### Estimate the phase using classical demodulation #####
-###########################################################
 
 def demod_classic(random_bits: np.array, sample_times: np.array, dirty_array: np.array):
     """This function demodulates the received signals using the classical method.
