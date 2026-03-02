@@ -107,14 +107,14 @@ def estimate_phase(sample_times: np.array, sample_values: np.array, freq_guesses
        This is the algorithm's estimate for what the phase of that waveform should be."""
     
     # This code is taken from the module 4 examples and modified slightly. 
-    # We are attempting to find the frequency of the transmitted wave after traversing a noisy channel. 
+    # We are attempting to find the phase of the transmitted wave after traversing a noisy channel. 
     # To do this, we are using the following equation: J = H * inv(HT*H) * HT*X
     # H is a matrix with the first column being cos terms and the second being sin terms. Each row corresponds to a different sample.
     # X is the vector of samples, and I chose to name that "sample_values" in my code. 
     # After guessing a bunch of frequencies, we choose the best one and evaluate the equation for that frequency. 
-    # Once we substitute that frequency in, we arrive at the variable "c", at which point we take the arctangent of c[1] over c[0].
+    # Once we do that, we arrive at the variable "c", at which point we take the arctangent of c[1] over c[0].
     # Finally, we use the np.where function to decide whether to return d or its complement with pi. 
-    # The latter is necessary when the point in question lies in the 2nd or 3rd quadrants.
+    # The latter is necessary when the point lies in the 2nd or 3rd quadrants.
 
     J = list()
     h = np.zeros((NUM_SAMP, 2))
@@ -143,7 +143,7 @@ def estimate_phase(sample_times: np.array, sample_values: np.array, freq_guesses
 
 def evaluate_estimate(phase_est: float, correct_bit: int):
     """Now that RX has estimated the phase, we need to see whether that's what TX actually said.
-    If the phase is greater than pi/2 or less than -pi/2, then we interpret that to be a bit 1.
+    If the phase is closer to pi than 0, then RX interprets that to be a bit 1. Otherwise 0.
     
     Parameters
     ----------
@@ -156,7 +156,7 @@ def evaluate_estimate(phase_est: float, correct_bit: int):
     -------
     The function will return True if the received bit matches the transmitted bit, and False otherwise."""
 
-    # If the phase estimate is closer to a phase of -pi, then interpret this bit as a 1. Otherwise 0.
+    # If the phase is closer to pi than 0, then RX interprets that to be a bit 1. Otherwise 0.
     if (phase_est > np.pi/2) or (phase_est < -np.pi/2):
         bit_est = 1
     else:
@@ -267,8 +267,8 @@ if __name__ == "__main__":
 
     # Create arrays of the SNR values and bit error rates for each demodulation technique.
     snr_values = np.arange(-20, 10+1, step=1)
-    ber_vals_ml = np.zeros(snr_values.size)
     ber_vals_cl = np.zeros(snr_values.size)
+    ber_vals_ml = np.zeros(snr_values.size)
 
     # Start a timer used to track progress.
     t0 = time.time()
