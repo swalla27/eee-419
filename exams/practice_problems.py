@@ -91,38 +91,37 @@ import os
 # print(list(my_dict.values()))
 # ### Plots
 # # Q: T/F: The following script displays a plot with 1 curve?
-import numpy as np # get the array functions
-import matplotlib.pyplot as plt # get plotting functions
-func_0 = np.zeros(10,int)
-x_val = np.arange(0,10,1)
-plt.plot(x_val,x_val)
-plt.savefig('my_graph.png')
-plt.show()
-# ### Integration
+# import numpy as np # get the array functions
+# import matplotlib.pyplot as plt # get plotting functions
+# func_0 = np.zeros(10,int)
+# x_val = np.arange(0,10,1)
+# plt.plot(x_val,x_val)
+# plt.savefig('my_graph.png')
+# plt.show()# ### Integration
 # ##### M3:
 # ### Linear Algebra
 # Moc Midterm:
 # #
-# y = 10
-# z = 3
-# x = y//z
-# print(x)
-# stuff = [1, 27, "car"]
-# x = stuff.pop(1)
-# print(stuff)
-# value = int(input("enter a number: "))
-# loop_cnt = 0;
-# while value != 1:
-# loop_cnt += 1
-# if ( value % 2 ) == 0:
-# value //= 2
-# else:
-# value = ( value * 3 ) + 1
-# print(" ", value)
-# print(loop_cnt, "iterations")
-# str_a = "happened"
-# str_b = 'way'
-# print("A funny thing",str_a,"on the"+str_b+"to the opera")
+y = 10
+z = 3
+x = y//z
+print(x)
+stuff = [1, 27, "car"]
+x = stuff.pop(1)
+print(stuff)
+value = int(input("enter a number: "))
+loop_cnt = 0
+while value != 1:
+    loop_cnt += 1
+    if ( value % 2 ) == 0:
+        value //= 2
+    else:
+        value = ( value * 3 ) + 1
+print(" ", value)
+print(loop_cnt, "iterations")
+str_a = "happened"
+str_b = 'way'
+print("A funny thing",str_a,"on the"+str_b+"to the opera")
 # import numpy as np
 # # my_array = np.array([[1 , 2 , 3] , [4 , 5 , 6] , [7,8,9] , [4 , 5 ,8]])
 # # print(len(my_array))
