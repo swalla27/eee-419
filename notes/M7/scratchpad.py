@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import re
 
-y = "You turned her against me. You have done that yourself."
-z = re.search(r'\w+t', y)
-
-print(z.group())
+x = np.ones((12,1))
+print(x.shape)
+print(x.T.shape)
+y = np.dot(x,np.transpose(x))
+print(y)
