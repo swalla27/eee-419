@@ -40,46 +40,46 @@
 
 
 
-# # Script 2 (Stuck in local minimum, perturbation needed):
+# Script 2 (Stuck in local minimum, perturbation needed):
 
-# import numpy as np                       # for arrays
-# from scipy import optimize               # access to optimization functions
-# import matplotlib.pyplot as plt          # to create the plot
-# from mpl_toolkits.mplot3d import Axes3D  # to allow 3D!
+import numpy as np                       # for arrays
+from scipy import optimize               # access to optimization functions
+import matplotlib.pyplot as plt          # to create the plot
+from mpl_toolkits.mplot3d import Axes3D  # to allow 3D!
 
-# ################################################################################
-# # A single-variable function to with 2 local minima and 1 global minimum       #
-# # Input:                                                                       #
-# #    coords - x value at which to evaluate the function                        #
-# # Output:                                                                      #
-# #    the value of the function                                                 #
-# ################################################################################
+################################################################################
+# A single-variable function to with 2 local minima and 1 global minimum       #
+# Input:                                                                       #
+#    coords - x value at which to evaluate the function                        #
+# Output:                                                                      #
+#    the value of the function                                                 #
+################################################################################
 
-# def fun_w_loc_min(x):
-#     y = -0.75
-#     return ( 4 - ( 2.1 * x**2 ) + ( x**4 / 3. ) ) * x**2 +  \
-#            x * y +                                          \
-#            (-4 + ( 4 * y**2 ) ) * y**2
+def fun_w_loc_min(x):
+    y = -0.75
+    return ( 4 - ( 2.1 * x**2 ) + ( x**4 / 3. ) ) * x**2 +  \
+           x * y +                                          \
+           (-4 + ( 4 * y**2 ) ) * y**2
 
-# x = np.linspace(-2, 2)      # allow x to vary from -4 to 4
-# print("x= ",x)
+x = np.linspace(-2, 2)      # allow x to vary from -4 to 4
+print("x= ",x)
 
-# # First optimization using bfgs with initial guess 200, disp=0 for quiet
-# result = optimize.fmin_bfgs(fun_w_loc_min, 2, disp=0)
-# print('bfgs result:',result)
+# First optimization using bfgs with initial guess 200, disp=0 for quiet
+result = optimize.fmin_bfgs(fun_w_loc_min, 2, disp=0)
+print('bfgs result:',result)
 
-# print()
-# # Second optimization using basin hopping with initial guess 200
-# result = optimize.basinhopping(fun_w_loc_min, 200)
-# print('BH: Optimal Solution =',result.x)    # Returns the optimal solution
-# print('BH: Optimal Value =',result.fun)    # Returns the optimal value
-# print('BH: Termination Reason:',result.message)    # Returns the optimal value
+print()
+# Second optimization using basin hopping with initial guess 200
+result = optimize.basinhopping(fun_w_loc_min, 200)
+print('BH: Optimal Solution =',result.x)    # Returns the optimal solution
+print('BH: Optimal Value =',result.fun)    # Returns the optimal value
+print('BH: Termination Reason:',result.message)    # Returns the optimal value
 
-# plt.figure()                   # simple visualization in 2D
-# plt.plot(x,fun_w_loc_min(x))
-# plt.xlabel('x')
-# plt.title('Quadratic Function in 1D')
-# plt.show()
+plt.figure()                   # simple visualization in 2D
+plt.plot(x,fun_w_loc_min(x))
+plt.xlabel('x')
+plt.title('Quadratic Function in 1D')
+plt.show()
 
 
 
