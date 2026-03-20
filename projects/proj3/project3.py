@@ -17,34 +17,47 @@ import os
 # Boltzman's constant and the unit charge.
 k = 1.380648e-23
 q = 1.6021766208e-19
-
-def diode(vdiode: float, sat_curr: float, ideality: float, temp: float):
-    vtherm = ideality*k*temp/q
-    return sat_curr * (np.exp(vdiode/vtherm)-1)
-
+SAT_CURR = 1e-9
+IDEALITY = 1.7
+RES = 11e3
+TEMP = 350
 
 #####################
 ##### Problem 1 #####
 #####################
 
-def fx_prob1(idiode: float, vsource: float):
-    return diode(vdiode=(vsource-idiode*R), sat_curr=1e-9, ideality=1.7, temp=350) - idiode
+def diode(vdiode: float):
+    vtherm = IDEALITY*k*TEMP/q
+    return SAT_CURR * (np.exp(vdiode/vtherm)-1)
 
-R = 11e3
+
+def prob1_fx(vdiode: float, vsource: float):
+    vtherm = IDEALITY*k*TEMP/q
+
+    return SAT_CURR*(np.exp(vdiode/vtherm)-1) - (vsource-vdiode)/RES
+
+
 diode_currents = list()
+diode_voltages = list()
 source_voltages = np.arange(0.1, 2.6, step=0.1)
 
 for vsource in source_voltages:
-    curr_est = 1e-3
 
     root = fsolve(
-        func=fx_prob1,
-        x0=curr_est,
+        func=prob1_fx,
+        x0=0.60,
         args=vsource
     )
 
-    diode_currents.append(root)
+    diode_voltages.append(root)
+    diode_currents.append(diode(root))
 
+plt.semilogy(source_voltages, diode_currents, label='Idiode vs Source Voltage', color='red')
+plt.semilogy(diode_voltages, diode_currents, label='Idiode vs Diode Voltages', color='black')
+plt.xlabel('Voltage (V)')
+plt.ylabel('Current (A)')
+plt.title('First Problem IV Curve')
+plt.grid(True)
 
-plt.scatter(source_voltages, diode_currents)
 plt.show()
+
