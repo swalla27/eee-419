@@ -68,8 +68,12 @@ if False:
 
 col_names = ['Vsource', 'Idiode']
 df = pd.read_csv('/home/steven-wallace/Documents/asu/eee-419/projects/proj3/DiodeIV.txt', names=col_names, header=None, delimiter=' ')
-source_voltages = df['Vsource']
-real_currents = df['Idiode']
+source_voltages = df['Vsource'].to_numpy()
+real_currents = df['Idiode'].to_numpy()
+
+def find_Is(phi: float):
+    Is = A * T**2 * np.exp(-phi*q/(k*T))
+    return Is
 
 A = 1e-8
 T = 375
@@ -77,65 +81,63 @@ T = 375
 phi = 0.8
 n = 1.5
 R = 10e3
+REASONABLE_RESISTANCE = [0, 100e12]
 
-def find_error(phi: float, n: float, R: float):
+def find_residuals(phi: float, n: float, R: float):
 
-    def find_Is():
-        Is = A * T**2 * np.exp(-phi*q/(k*T))
-        return Is
-    Is = find_Is()
+    Is = find_Is(phi)
 
-    sim_currents = list()
-    for Vsrc in source_voltages:
+    sim_currents = np.zeros(len(source_voltages))
+    for idx, Vsrc in enumerate(source_voltages):
         root = fsolve(
             func=solve_for_vdiode,
             x0=0.60,
             args=(Vsrc, n, R, Is)
-        )
-        sim_currents.append(idiode_from_vdiode(root))
-    
-    error = 0
-    for idx, val in enumerate(real_currents):
-        error += (val - sim_currents[idx])
-    return error
+        )[0]
+
+        sim_currents[idx] = idiode_from_vdiode(root)
+
+    return real_currents - sim_currents
 
 
 def residual_phi(phi, n, R):
-    return find_error(phi, n, R)
+    return find_residuals(phi, n, R)
 
 def residual_n(n, R, phi):
-    return find_error(phi, n, R)
+    return find_residuals(phi, n, R)
 
 def residual_R(R, phi, n):
-    return find_error(phi, n, R)
+    return find_residuals(phi, n, R)
 
 
-tolerance = 1e-6
-max_iters = 20_000
+tol = 1
+max_iter = 2_000
 
 error = 100
 iter_num = 0
 
-while (error > tolerance) and (iter_num < max_iters):
+while (error > tol) and (iter_num < max_iter):
 
     phi_array = leastsq(func=residual_phi, x0=phi, args=(n, R))
-    phi = phi_array[0][0]
-
     n_array = leastsq(func=residual_n, x0=n, args=(R, phi))
-    n = n_array[0][0]
-
     R_array = leastsq(func=residual_R, x0=R, args=(phi, n))
+
+    error = np.abs(phi-phi_array[0][0]) + np.abs(n-n_array[0][0]) + np.abs(R-R_array[0][0])
+
+    phi = phi_array[0][0]
+    n = n_array[0][0]
     R = R_array[0][0]
 
-    error = find_error(phi, n, R)
+    if (R < REASONABLE_RESISTANCE[0]) or (R > REASONABLE_RESISTANCE[1]):
+        R = 10e3
+
     iter_num += 1
 
-    print(error)
-
-    print(f'Iteration Num: {iter_num}\n\tphi = {phi:.3f}\n\tn = {n:.3f}\n\tR = {R:.3f}\n\tError = {error:.3f}')
+    print(f'Iteration Number: {iter_num}\n\tphi = {phi:.3f}\n\tn = {n:.3f}\n\tR = {R:.0f}\n\tError = {error:.1f}')
 
 
 sim_currents = list()
+Is = find_Is(phi)
 for Vsrc in source_voltages:
     root = fsolve(
         func=solve_for_vdiode,
@@ -143,6 +145,8 @@ for Vsrc in source_voltages:
         args=(Vsrc, n, R, Is)
     )
     sim_currents.append(idiode_from_vdiode(root))
+
+
 
 plt.figure()
 plt.semilogy(source_voltages, real_currents, label='Real Current (A)', color='red')
