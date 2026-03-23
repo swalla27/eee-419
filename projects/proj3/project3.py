@@ -147,7 +147,7 @@ diode_voltages, diode_currents = calc_diode_iv(source_voltages, res_val, n_val, 
 
 # Create the graph for problem 1.
 plt.semilogy(source_voltages, diode_currents, label='Idiode vs Source Voltage', color='red')
-plt.semilogy(diode_voltages, diode_currents, label='Idiode vs Diode Voltages', color='black')
+plt.semilogy(diode_voltages, diode_currents, label='Idiode vs Diode Voltage', color='black')
 plt.xlabel('Voltage (V)')
 plt.ylabel('Current (A)')
 plt.title('Diode Current vs Source Voltage (#1)')
@@ -185,48 +185,8 @@ def read_data(file_path: str):
     # Return the source voltages and measured currents.
     return source_voltages, real_currents
 
-def norm_error(real: np.array, calc: np.array):
-    """
-    Calculate the normalized error for two numpy arrays.
-
-    Parameters
-    ----------
-    real : np.array
-        The currents measured in the lab.
-    calc : np.array
-        The calculated currents in this iteration of the program.
-    
-    Returns
-    -------
-    abs_err : np.array
-        The normalized error for this combination of input arrays.
-    """
-
-    abs_err = (real - calc) / (real + calc + 1e-15)
-    return abs_err
-
-def abs_error(real: np.array, calc: np.array):
-    """
-    Calculate the absolute error for two numpy arrays.
-
-    Parameters
-    ----------
-    real : np.array
-        The currents measured in the lab.
-    calc : np.array
-        The calculated currents in this iteration of the program.
-    
-    Returns
-    -------
-    abs_err : np.array
-        The absolute error for this combination of input arrays.
-    """
-
-    norm_err = (real - calc)
-    return norm_err
-
 def opt_r(r_value,
-          ide_value,phi_value,area,temp,source_voltages,real_currents):
+          ide_value,phi_value,AREA,temp,source_voltages,real_currents):
     """
     Optimize for the resistance value.
 
@@ -238,8 +198,8 @@ def opt_r(r_value,
         The current prediction for the ideality value of the diode in this circuit.
     phi_value : float or int
         The current prediction for the phi value of the diode in this circuit.
-    area : float or int
-        This is a constant defined in the problem statement, corresponding to the area of the diode.
+    AREA : float or int
+        This is a constant defined in the problem statement, corresponding to the AREA of the diode.
     temp : float or int
         The temperature of the diode. This will affect the current through the device.
     source_voltages : np.array
@@ -263,7 +223,7 @@ def opt_r(r_value,
     prev_v = 0.6                                         # an initial guess for the voltage
 
     # need to compute the reverse bias saturation current for this phi!
-    is_value = area * temp * temp * np.exp(-phi_value * Q / ( K * temp ) )
+    is_value = AREA * temp * temp * np.exp(-phi_value * Q / ( K * temp ) )
 
     for index in range(len(source_voltages)):
         prev_v = fsolve(solve_diode,prev_v,
@@ -279,10 +239,11 @@ def opt_r(r_value,
     ################################
 
     # Calculate the residuals and return them.
-    return abs_error(real_currents, calc_currents)
+    abs_err = (real_currents - calc_currents)
+    return abs_err
 
 def opt_n(ide_value,
-          r_value,phi_value,area,temp,source_voltages,real_currents):
+          r_value,phi_value,AREA,temp,source_voltages,real_currents):
     """
     Optimize for the ideality value.
     
@@ -294,8 +255,8 @@ def opt_n(ide_value,
         The current prediction for the value of resistance in series with the diode.
     phi_value : float or int
         The current prediction for the phi value of the diode in this circuit.
-    area : float or int
-        This is a constant defined in the problem statement, corresponding to the area of the diode.
+    AREA : float or int
+        This is a constant defined in the problem statement, corresponding to the AREA of the diode.
     temp : float or int
         The temperature of the diode. This will affect the current through the device.
     source_voltages : np.array
@@ -319,7 +280,7 @@ def opt_n(ide_value,
     prev_v = 0.6                                         # an initial guess for the voltage
 
     # need to compute the reverse bias saturation current for this phi!
-    is_value = area * temp * temp * np.exp(-phi_value * Q / ( K * temp ) )
+    is_value = AREA * temp * temp * np.exp(-phi_value * Q / ( K * temp ) )
 
     for index in range(len(source_voltages)):
         prev_v = fsolve(solve_diode,prev_v,
@@ -335,10 +296,11 @@ def opt_n(ide_value,
     ################################
 
     # Calculate the residuals and return them.
-    return norm_error(real_currents, calc_currents)
+    norm_err = (real_currents - calc_currents) / (real_currents + calc_currents + 1e-15)
+    return norm_err
 
 def opt_phi(phi_value,
-          r_value,ide_value,area,temp,source_voltages,real_currents):
+          r_value,ide_value,AREA,temp,source_voltages,real_currents):
     """
     Optimize for the phi value.
     
@@ -350,8 +312,8 @@ def opt_phi(phi_value,
         The current prediction for the value of resistance in series with the diode.
     ide_value : float or int
         The current prediction for the ideality value of the diode in this circuit.
-    area : float or int
-        This is a constant defined in the problem statement, corresponding to the area of the diode.
+    AREA : float or int
+        This is a constant defined in the problem statement, corresponding to the AREA of the diode.
     temp : float or int
         The temperature of the diode. This will affect the current through the device.
     source_voltages : np.array
@@ -375,7 +337,7 @@ def opt_phi(phi_value,
     prev_v = 0.6                                         # an initial guess for the voltage
 
     # need to compute the reverse bias saturation current for this phi!
-    is_value = area * temp * temp * np.exp(-phi_value * Q / ( K * temp ) )
+    is_value = AREA * temp * temp * np.exp(-phi_value * Q / ( K * temp ) )
 
     for index in range(len(source_voltages)):
         prev_v = fsolve(solve_diode,prev_v,
@@ -391,7 +353,8 @@ def opt_phi(phi_value,
     ################################
 
     # Calculate the residuals and return them.
-    return norm_error(real_currents, calc_currents)
+    norm_err = (real_currents - calc_currents) / (real_currents + calc_currents + 1e-15)
+    return norm_err
 
 ##############################
 ##### Complete Problem 2 #####
@@ -402,7 +365,7 @@ file_path = '/home/steven-wallace/Documents/asu/eee-419/projects/proj3/DiodeIV.t
 source_voltages, real_currents = read_data(file_path)
 
 # Define some constants used in problem 2.
-area = 1e-8
+AREA = 1e-8
 temp = 375
 TOL = 1e-9
 MAX_ITER = 2_000
@@ -419,11 +382,11 @@ while (error > TOL) and (iter_num < MAX_ITER):
 
     # Optimize for the resistance, then ideality, and finally the value of phi.
     res_arr = leastsq(func=opt_r, x0=res_val, 
-                      args=(n_val, phi_val, area, temp, source_voltages, real_currents))
+                      args=(n_val, phi_val, AREA, temp, source_voltages, real_currents))
     n_arr = leastsq(func=opt_n, x0=n_val, 
-                      args=(res_val, phi_val, area, temp, source_voltages, real_currents))
+                      args=(res_val, phi_val, AREA, temp, source_voltages, real_currents))
     phi_arr = leastsq(func=opt_phi, x0=phi_val, 
-                      args=(res_val, n_val, area, temp, source_voltages, real_currents))
+                      args=(res_val, n_val, AREA, temp, source_voltages, real_currents))
     
     # Extract the new values for R, n, and phi from these arrays returned by the optimize function.
     res_val = res_arr[0][0]
@@ -431,7 +394,7 @@ while (error > TOL) and (iter_num < MAX_ITER):
     phi_val = phi_arr[0][0]
 
     # Calculate the error for this iteration.
-    res = opt_phi(phi_val, res_val, n_val, area, temp, source_voltages, real_currents) 
+    res = opt_phi(phi_val, res_val, n_val, AREA, temp, source_voltages, real_currents) 
     error = np.sum(np.abs(res))/len(res)
 
     # Add one to the iteration counter, and print the current status to the terminal.
@@ -439,7 +402,7 @@ while (error > TOL) and (iter_num < MAX_ITER):
     print(f'Iteration {iter_num} Values:\n\tresistor: {res_val}\n\tideality: {n_val}\n\tphi value: {phi_val}\n\terror: {error}')
 
 # Calculate the diode currents matching these phi, R, and n values.
-is_value = area * temp * temp * np.exp(-phi_val * Q / ( K * temp ) )
+is_value = AREA * temp * temp * np.exp(-phi_val * Q / ( K * temp ) )
 _, calc_currents = calc_diode_iv(source_voltages, res_val, n_val, temp, is_value)
 
 # Create the graph for problem 2.
