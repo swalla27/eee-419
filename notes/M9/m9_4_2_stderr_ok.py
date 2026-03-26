@@ -8,3 +8,5 @@ proc = subprocess.Popen(["ls","-F"],              # command and args
 output, err = proc.communicate()
 print("output is\n",output)
 print("err is\n",err)
+
+
