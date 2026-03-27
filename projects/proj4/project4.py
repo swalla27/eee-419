@@ -7,14 +7,11 @@
 
 # I did not use AI at all to complete this assignment
 
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import subprocess
+import time
 import sys
 import os
-
-
 
 #####################
 ##### Functions #####
@@ -40,8 +37,13 @@ def make_new_netlist(n_value: float, fan_value: float):
     current_netlist = ORIGINAL_NETLIST.copy()
 
     current_netlist.append(f'.param fan = {fan_value}\n')
-    current_netlist.append(f'Xinv1 a b inv M=1\n')
+    
+    if n_value == 1:
+        current_netlist.append('Xinv1 a z inv M=1\n')
+    else:
+        current_netlist.append('Xinv1 a b inv M=1\n')
     prev_node = 'b'
+    next_node = 'b'
 
     for inverter_id in np.arange(start=2, stop=n_value+1, step=1):
 
@@ -54,32 +56,37 @@ def make_new_netlist(n_value: float, fan_value: float):
 
         prev_node = next_node
 
-    current_netlist.append('.end')
+    current_netlist.append('.end\n')
 
-    with open(modified_file, 'w') as f:
+    with open(INPUT_FILE, 'w') as f:
         for line in current_netlist:
+#            print(line)
             f.write(line)
 
 def get_tphl_from_hspice():
-    # proc = subprocess.Popen(["hspice", modified_file],
-    #                         stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    # output, err = proc.communicate()
+    proc = subprocess.Popen(["hspice", INPUT_FILE],
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output, err = proc.communicate()
+#    print(f'output: {output.decode()}')
+#    print(f'err: {err.decode()}')
 
     # extract tphl from the output file
-    data = np.genfromtxt(output_file, comments="$", skip_header=3)
-    tphl = data["tphl_inv"]
+    data = np.loadtxt(OUTPUT_FILE, delimiter=',', skiprows=3, dtype=str)
+#    print(data)
+    tphl = float(data[1][0])
+#    print(tphl)
 
     return tphl
 
+t0 = time.time()
 
-WORKING_FOLDER = 'projects/proj4'
+WORKING_FOLDER = os.getcwd()
 INPUT_FILE = os.path.join(WORKING_FOLDER, 'InvChain.sp')
-modified_file = os.path.join(WORKING_FOLDER, 'InvChainMod.sp')
-output_file = os.path.join(WORKING_FOLDER, 'InvChain.mt0.csv')
+OUTPUT_FILE = os.path.join(WORKING_FOLDER, 'InvChain.mt0.csv')
 
 ORIGINAL_NETLIST = read_original_infile()
 
-n_values = np.arange(1, 15+1, step=2)
+n_values = np.arange(3, 15+1, step=2)
 fan_values = np.arange(1, 7+1, step=1)
 
 results_list = list()
@@ -98,7 +105,4 @@ for n_value in n_values:
 
         print(f'N {n_value} fan {fan_value} tphl {tphl:.2e}')
         
-
-
-
-
+print(f'Best Delay:\n\tN = {best_result[0]}\n\tfan = {best_result[1]}\n\ttphl = {best_result[2]}')
