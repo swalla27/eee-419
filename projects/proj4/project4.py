@@ -86,8 +86,8 @@ OUTPUT_FILE = os.path.join(WORKING_FOLDER, 'InvChain.mt0.csv')
 
 ORIGINAL_NETLIST = read_original_infile()
 
-n_values = np.arange(3, 15+1, step=2)
-fan_values = np.arange(1, 7+1, step=1)
+n_values = np.arange(1, 15+1, step=2)
+fan_values = np.arange(1, 11+1, step=1)
 
 results_list = list()
 best_delay = 1000
@@ -101,6 +101,7 @@ for n_value in n_values:
         results_list.append(entry)
 
         if tphl < best_delay:
+            best_delay = tphl
             best_result = entry
 
         print(f'N {n_value} fan {fan_value} tphl {tphl:.2e}')
