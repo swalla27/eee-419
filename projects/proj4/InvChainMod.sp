@@ -36,16 +36,6 @@ Vvcc vcc! 0 DC = 3V
 
 .measure TRAN tphl_inv  TRIG v(Xinv1.a) VAL = 1.5 RISE = 1 TARG v(z) VAL=1.5 FALL = 1
 
-.param fan = 7
+.param fan = 1
 Xinv1 a b inv M=1
-Xinv2 b c inv M=fan**1
-Xinv3 c d inv M=fan**2
-Xinv4 d e inv M=fan**3
-Xinv5 e f inv M=fan**4
-Xinv6 f g inv M=fan**5
-Xinv7 g h inv M=fan**6
-Xinv8 h i inv M=fan**7
-Xinv9 i j inv M=fan**8
-Xinv10 j k inv M=fan**9
-Xinv11 k z inv M=fan**10
 .end
