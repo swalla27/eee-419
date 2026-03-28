@@ -19,7 +19,7 @@ import os
 
 def read_original_infile():
     """
-    Read the input file and return the netlist until a certain point. Namely, we stop once the word 'fan' appears.
+    Read the input file and return the netlist until a certain point. We stop at the word 'fan' to cut off the last few lines.
     
     Parameters
     ----------
@@ -127,13 +127,14 @@ def get_tphl_from_hspice():
     # print(f'err: {err.decode()}')
 
     # Extract the high to low propagation delay from the output file, then return it.
+    # There was something here earlier, can't remember what, but it was deprecated and so I had to change it.
     data = np.loadtxt(OUTPUT_FILE, delimiter=',', skiprows=3, dtype=str)
     tphl = float(data[1][0])
 
     return tphl
 
 # Define the working folder and the files we are referencing throughout this program. 
-# You can easily change these variables to reference different files.
+# You can easily change these constants to reference different files.
 WORKING_FOLDER = os.getcwd()
 INPUT_FILE = os.path.join(WORKING_FOLDER, 'InvChain.sp')
 OUTPUT_FILE = os.path.join(WORKING_FOLDER, 'InvChain.mt0.csv')
@@ -163,12 +164,12 @@ for n_value in n_values:
 
         # If this is the best propagation delay we have seen so far, then make note of it.
         if tphl < best_delay:
-            best_delay = tphl
             best_n = n_value
             best_fan = fan_value
+            best_delay = tphl
 
         # Print the N, fan, and tphl values to the terminal just as requested in the prompt.
-        print(f'N {n_value} fan {fan_value} tphl {tphl:.2e}')
+        print(f'N {n_value} fan {fan_value} tphl {tphl:.3e}')
         
 # Print the best results to the terminal. During testing, this happened with 7 inverters and a fan of 3, which produced tphl = 0.72 ns.
-print(f'Best Delay:\n\tN = {best_n}\n\tfan = {best_fan}\n\ttphl = {best_delay:.2e}')
+print(f'Best values were:\n\tfan = {best_fan}\n\tnum_inverters = {best_n}\n\ttphl = {best_delay:.3e}')
