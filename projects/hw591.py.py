@@ -169,6 +169,7 @@ print_results(knn, 'KNN')
 # Logistic Regression (0.84)> Random Forest (0.80) > KNN (0.79)
 # > SVM (0.79) > Perceptron (0.79) > Decision Tree (0.74) 
 
+# First, I will calculate the predictions for each model based on the test data and store that in variables.
 lr_predictions = lr.predict(X_test_std)
 forest_predictions = forest.predict(X_test_std)
 knn_predictions = knn.predict(X_test_std)
@@ -177,38 +178,73 @@ ppn_predictions = ppn.predict(X_test_std)
 tree_predictions = tree.predict(X_test_std)
 
 def custom_ensemble(*models):
+    """
+    Find the majority vote given the predictions of an arbitrary number of models.
 
-    majority = np.zeros_like(models[0])
-    number_entries = models[0].size
+    Parameters
+    ----------
+    models : tuple
+        Each element in this tuple is a numpy array containing all a model's predictions. 
+        Defining the function input with an asterisk allows for an arbitrary number of models.
+
+    Returns
+    -------
+    majority : np.array
+        The majority vote based upon the models provided to this function.    
+    """
+
+    # Initialize an empty array which will contain the summation of all the model predictions.
+    summed_array = np.zeros_like(models[0])
+
+    # Find the number of models they passed the function this time.
     number_models = len(models)
-    for idx in range(number_entries):
 
-        group_a = 0
-        print('votes')
-        for model in models:
-            if model[idx] == 1:
-                group_a += 1
-            print(model[idx])
-
-        if (group_a / number_models) > 0.5:
-            majority[idx] = 1
-        else:
-            majority[idx] = 2
-        print('decision')
-        print(majority[idx])
-        # sys.exit()
+    # Loop over each entry in the models tuple to create the summed array.
+    for model in models:
+        summed_array += model
     
+    # The threshold is 3x/2, where x is the number of models. 
+    # A tie goes to group 2 because I have used >= and not >.
+    thresh = 3*number_models / 2
+    majority = np.where(summed_array >= thresh, 2, 1)
+
     return majority
 
+# Call the custom ensemble function using three models.
 ensemble3 = custom_ensemble(lr_predictions, forest_predictions, 
                             knn_predictions)
 acc3 = accuracy_score(y_test, ensemble3)
+print(f'\nCUSTOM ENSEMBLE LEARNING')
+print(f'\t3 Models: {acc3:.2f}')
 
+# Call the custom ensemble function using four models.
 ensemble4 = custom_ensemble(lr_predictions, forest_predictions, 
                             knn_predictions, svm_predictions)
 acc4 = accuracy_score(y_test, ensemble4)
+print(f'\t4 Models: {acc4:.2f} (ties are class 2, presence of heart disease)')
 
+# Call the custom ensemble function using five models.
 ensemble5 = custom_ensemble(lr_predictions, forest_predictions, 
                             knn_predictions, svm_predictions, ppn_predictions)
 acc5 = accuracy_score(y_test, ensemble5)
+print(f'\t5 Models: {acc5:.2f}')
 
+"""
+When using 3 models, the accuracy is 0.83, while the max accuracy of the models used alone is 0.84.
+The accuracy does decrease slightly for this situation, although that change is very small. We probably
+need to increase the number of models to get the full benefit of ensemble learning, 3 is insufficient.
+
+When using 4 models, the accuracy is 0.84, the same as the max accuracy of a lone model. Ties are counted 
+as group 2, or the presence of heart disease. This leads to higher accuracy for this dataset, although the 
+difference is miniscule. Although it is possible for the accuracy of an ensemble machine learning algorithm to 
+exceed that of the constituents, that is not what we see in this case. In the case of a random forest, this could 
+happen because of insufficient diversity. However, I don't think that is the case here, because we are using 4 
+entirely different models. I think it is likely that we are running into the upper limit for what is possible 
+in this problem, and increasing the number of methods is unlikely to improve the accuracy any further.
+
+When using 5 models, the accuracy is again 0.84. We are likely running into the maximum accuracy that is 
+achievable under these circumstances, and to further improve the model, I would recommend gathering more data.
+We have 270 data points in this program, which is miniscule for a machine learning algorithm. I believe
+that to be the weakest link at the moment, although increasing the number of trees or making them more diverse
+might be able to improve the accuracy slightly.
+"""
