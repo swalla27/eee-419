@@ -5,7 +5,8 @@
 
 # Homework 591
 
-# I did not use AI at all to complete this assignment
+# I did not use AI at all to complete this assignment.
+# The additions for hw591 begin at line 166.
 
 import pandas as pd
 import numpy as np
