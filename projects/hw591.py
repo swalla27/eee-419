@@ -167,7 +167,7 @@ print_results(knn, 'KNN')
 ##### Homework 591 Additions #####
 ##################################
 
-# Logistic Regression (0.84)> Random Forest (0.80) > KNN (0.79)
+# Logistic Regression (0.84) > Random Forest (0.80) > KNN (0.79)
 # > SVM (0.79) > Perceptron (0.79) > Decision Tree (0.74) 
 
 # First, I will calculate the predictions for each model based on the test data and store that in variables.
