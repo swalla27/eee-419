@@ -11,7 +11,7 @@ import numpy as np
 import sys
 
 # Define some constants and the precision used for numpy floating point numbers.
-np.set_printoptions(precision=15)
+# np.set_printoptions(precision=15)
 MAX_POINTS = 10_000
 NUM_ATTEMPTS = 100
 
@@ -31,7 +31,6 @@ for precision_value in precision_values:
 
         # Initalize a variable for the number of points inside the circle.
         points_inside = 0
-        failure = False
 
         # Begin to loop over the point number. There are a maximum of MAX_POINTS allowed.
         # This is important because the value of pi must be calculated using point_number and not MAX_POINTS.
@@ -56,24 +55,15 @@ for precision_value in precision_values:
                 # If the accuracy of pi is sufficient, no point wasting any more time. 
                 # Increment the counter for successful attempts and break the j loop.
                 successful_attempts += 1
+                pi_values.append(pi_value)
                 break
-
-            if point_number == MAX_POINTS:
-                # print('failure')
-                failure = True
-        
-        # Store the approximated value of pi in the array called pi_values. This will be used to calculate an average later.
-        if not failure:
-            pi_values.append(pi_value)
     
     # The variable avg_pi is the average of all my pi approximations for this precision.
-    if len(pi_values) > 0:
-        avg_pi = sum(pi_values) / len(pi_values)
-    else:
-        print(f'{precision_value} no success')
-        break
-
     # Print the requested information to the terminal. If there were no successful attempts, then print something slightly different.
     # During testing, I tried this program with MAX_POINTS=100_000, and this improved the accuracy considerably.
     # For that reason, I am fairly confident this program does exactly what I want it to.
-    print(f'{precision_value} success {successful_attempts} times {avg_pi:.15f}')
+    if len(pi_values) > 0:
+        avg_pi = sum(pi_values) / len(pi_values)
+        print(f'{precision_value} success {successful_attempts} times {avg_pi:.15f}')
+    else:
+        print(f'{precision_value} no success')
