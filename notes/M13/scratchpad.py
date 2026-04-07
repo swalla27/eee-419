@@ -11,8 +11,6 @@ class Employee:
         self.email = first + '.' + last + '@gmail.com'
         self.pay = pay
 
-    def fullname(self):
-        return '{} {}'.format(self.first, self.last)
     
     def apply_raise(self):
         self.pay = int(self.pay * self.raise_amt)
@@ -30,6 +28,10 @@ class Employee:
     
     def __len__(self):
         return len(self.fullname())
+
+    # An instance method accepts self as an input and requires no decorator.
+    def fullname(self):
+        return '{} {}'.format(self.first, self.last)
     
     @classmethod
     # Do not run this from an instance, always do it from the class.
@@ -37,12 +39,6 @@ class Employee:
     def set_raise_amt(cls, amount):
         cls.raise_amt = amount
 
-    @classmethod
-    # An alternative contructor, meaning you can create an instance this way too.
-    def from_string(cls, emp_str):
-        first, last, pay = emp_str.split('-')
-        return cls(first, last, pay)
-    
     @staticmethod
     # A static method does not pass the instance (self) or the class (cls) as input.
     # If you don't access self or cls in the function, then it should probably be a static method.
@@ -51,6 +47,12 @@ class Employee:
             return False
         else:
             return True
+        
+    @classmethod
+    # An alternative contructor, meaning you can create an instance this way too.
+    def from_string(cls, emp_str):
+        first, last, pay = emp_str.split('-')
+        return cls(first, last, pay)
 
 class Developer(Employee):
     raise_amt = 1.10

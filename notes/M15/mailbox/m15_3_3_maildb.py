@@ -3,6 +3,7 @@
 # reference: https://www.sqlite.org/lang.html
 
 import sqlite3                                  # get the package
+import os
 
 conn = sqlite3.connect('maildb.sqlite')         # open the database
 cur = conn.cursor()                             # and connect to it
@@ -14,9 +15,13 @@ cur.execute('DROP TABLE IF EXISTS Counts')      # delete table if already there!
 cur.execute('''CREATE TABLE Counts (email TEXT, count INTEGER)''')
 
 # get the data file - note the default name to use
-fname = input('Enter file name: ')
-if (len(fname) < 1): fname = 'mailbox.txt'
-fh = open(fname)
+# fname = input('Enter file name: ')
+
+cwd = os.getcwd()
+filepath = os.path.join(cwd, 'notes/M15/mailbox/mailbox.txt')
+
+# if (len(fname) < 1): fname = 'mailbox.txt'
+fh = open(filepath)
 
 for line in fh:                                   # for each line in the file...
     if not line.startswith('From: '): continue    # only look at From lines

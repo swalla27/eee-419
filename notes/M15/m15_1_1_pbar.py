@@ -4,7 +4,7 @@
 import pyprind as prog                         # packages required
 import time
 
-ITERS = 5000000                                # operations to count
+ITERS = 5_000_000                                # operations to count
 SPLITS = 5                                     # split ops into chunks
 STEPS = ITERS/SPLITS                           # ops per chunk
 PAUSE = 1                                      # seconds to pause between chunks

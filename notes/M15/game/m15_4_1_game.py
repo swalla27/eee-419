@@ -13,9 +13,11 @@
 from numpy.random import choice                  # to randomly pick replacements
 import pyglet                                    # the GUI environment
 import numpy as np                               # needed for randomization
+import os
+cwd = os.getcwd()
 
 BOARD_SIZE = 8                                   # board dimensions
-BOARD_MAX  = BOARD_SIZE - 1                      # the maximum index
+BOARD_MAX  = int(BOARD_SIZE - 1)                      # the maximum index
 PIECE_SIZE = 50                                  # the size of each piece
 NUM_PIECES = 5                                   # how many unique pieces
 CHOICES = np.arange(NUM_PIECES)                  # numbers from which to choose
@@ -212,7 +214,8 @@ def on_mouse_release(x, y, symbol, modifier):   # x,y plus unused parameters
 
         # put into a list to make passing easier
         move = [start_row,start_col,end_row,end_col]
-        score += update_board(board,move)            # make the requested change
+        x = [int(y) for y in move]
+        score += update_board(board,x)            # make the requested change
         round += 1                                   # track turns
 
         if ( score > SCORE_LIMIT ):                  # have we won?
@@ -244,8 +247,9 @@ board = np.full([BOARD_SIZE,BOARD_SIZE],REPLACE,int)
 # where the number starts from 0 and increments from there
 
 image_list = []                             # not global, but visible to on_draw
+path_head = os.path.join(cwd, 'notes/M15/game/piece')
 for image in range(NUM_PIECES):
-    image_list.append(pyglet.image.load("piece_"+str(image)+".jpg"))
+    image_list.append(pyglet.image.load(path_head + str(image) + '.jpg'))
 
 round = 0                                   # initialize
 initialize(board)                           # randomize the initial board

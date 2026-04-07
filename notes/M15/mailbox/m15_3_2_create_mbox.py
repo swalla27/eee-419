@@ -37,13 +37,19 @@ def read_data(file_name):
 
     return name_list
 
-name_list = read_data("scottish names 2010.csv")
+import os
+cwd = os.getcwd()
+name_path = os.path.join(cwd, 'notes/M15/mailbox/scottish_names.csv')
+
+name_list = read_data(name_path)
 #print(name_list)
 
 from_list = choice(name_list,NUM_EMAILS)     # pick names with replacement
 #print(from_list)
 
-mailbox = open("mailbox.txt","w")            # open the output file
+mailbox_path = os.path.join(cwd, 'notes/M15/mailbox/mailbox.txt')
+
+mailbox = open(mailbox_path, 'w')            # open the output file
 for sender in from_list:
     now = datetime.now()                           # get current time/date
     now_str = now.strftime("%B %d, %Y %H:%M:%S")   # get the desired format

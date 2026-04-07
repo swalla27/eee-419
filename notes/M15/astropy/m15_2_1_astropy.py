@@ -20,6 +20,8 @@ from astropy.visualization import astropy_mpl_style
 import matplotlib.pyplot as plt
 plt.style.use(astropy_mpl_style)
 
+import os
+
 # List of tuples consisting of (Object name, arcmins to use)
 object_list = [ ('M42',     300), \
                 ('IC 5146',  70), \
@@ -52,9 +54,12 @@ for objects in object_list:
     url = cutoutbaseurl + '?' + query_string
 
     # this downloads the image to your disk into the image_name file
-    image_name = objects[0]+'.jpg'
-    urlretrieve(url, image_name)
+    cwd = os.getcwd()
+    img_path = os.path.join(cwd, 'notes/M15/astronomy', objects[0] + '.jpg')
+
+    # image_name = objects[0] + '.jpg'
+    urlretrieve(url, img_path)
 
     # and now we can display it
-    space = Image.open(image_name)
+    space = Image.open(img_path)
     space.show()
