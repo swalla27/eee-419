@@ -25,8 +25,9 @@ pick = int(input("pick a number between 0 and 4, inclusive: "))
 # make sure that the value is in the dictionary
 # this isn't necessary if the value is previously constrained
 if pick in switch:
-    color = switch[pick]                 # get the value!
-    color()
+    # color = switch[pick]                 # get the value!
+    # color()
+    switch[pick]()
 else:
     print('Please follow directions!')   # print a error message
 

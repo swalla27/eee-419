@@ -82,7 +82,11 @@ plt.title('grade distribution - unstacked')
 plt.show()
 
 # read in a dataframe for use with bar charts
-gifts_df = read_csv('gifts.csv',index_col=0)
+import os
+cwd = os.getcwd()
+gifts_path = os.path.join(cwd, 'notes/M15/m15_8_2_gifts.csv')
+
+gifts_df = read_csv(gifts_path,index_col=0)
 print("\n\nthe new dataframe")
 plt.title('grade distribution')
 print(gifts_df)
