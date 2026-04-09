@@ -19,8 +19,8 @@ import os
 # I will set both of those Boolean variables to False for the submission.
 NOISE_SCALE = 0.1
 FREQ_CUTOFF = 2e3
-PLAY_AUDIO = True
-SHOW_GRAPHS = True
+PLAY_AUDIO = False
+SHOW_GRAPHS = False
 
 # Load the audio file.
 cwd = os.getcwd()
