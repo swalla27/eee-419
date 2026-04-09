@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-getty = open('gettysburg.txt','r').read()     # read our text
+import os
+cwd = os.getcwd()
+txtpath = os.path.join(cwd, 'notes/M15/gettysburg.txt')
+
+getty = open(txtpath,'r').read()     # read our text
 stops = set(STOPWORDS)                        # words to drop
 
 # create the word cloud object using the stop words
@@ -24,7 +28,8 @@ plt.axis('off')
 plt.show()
 
 # now let's add a background picture
-lincoln = np.array(Image.open('Lincoln.png')) # read the picture
+photopath = os.path.join(cwd, 'notes/M15/Lincoln.png')
+lincoln = np.array(Image.open(photopath)) # read the picture
 plt.imshow(lincoln)                           # add it to a plot
 
 # create the word cloud object with:
