@@ -10,6 +10,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tkinter as tk
+from typing import Callable
 import sys
 import os
 
@@ -108,8 +109,32 @@ g.graph(np.arange(0, 50, 1))
 ##### Tkinter GUI #####
 #######################
 
-def update_result(result_label, newresult: str):
-    newtext = f'Result = {newresult:.2f}'
+def update_result(result_label: tk.Label, a: tk.StringVar, b: tk.StringVar, fx: Callable):
+    """
+    This function updates the label to the tkinter GUI using the two string variables and the function fx.
+
+    Parameters
+    ----------
+    result_label: tk.Label
+        A label in the tkinter GUI used to display the result. The present function will update that label.
+    a: tk.StringVar
+        A tkinter string variable. I will extract an integer and use that as one input to the function "fx."
+    b: tk.StringVar
+        A tkinter string variable. I will extract an integer for use as the other input to the function "fx."
+    fx: Callable
+        The function we are executing for this label update. For example, we might add or subtract "a" and "b".
+
+    Returns
+    -------
+    None
+    """
+    
+    in1 = int(a.get())
+    in2 = int(b.get())
+
+    result = fx(in1, in2)
+    newtext = f'Result = {result}'
+
     result_label.config(text=newtext)
 
 
@@ -129,20 +154,19 @@ result_label = tk.Label(root, text='Result = ')
 result_label.grid(row=2, column=0, rowspan=2)
 
 add_button = tk.Button(root, text='+', width=10, height=4,
-                       command=lambda: update_result(result_label, c.add(int(a.get()), int(b.get())))
+                       command=lambda: update_result(result_label, a, b, c.add)
                        ).grid(row=0, column=1)
 
 sub_button = tk.Button(root, text='-', width=10, height=4,
-                       command=lambda: update_result(result_label, c.subtr(int(a.get()), int(b.get())))
+                       command=lambda: update_result(result_label, a, b, c.subtr)
                        ).grid(row=1, column=1)
 
 mult_button = tk.Button(root, text='x', width=10, height=4,
-                        command=lambda: update_result(result_label, c.mult(int(a.get()), int(b.get())))
+                        command=lambda: update_result(result_label, a, b, c.mult)
                         ).grid(row=2, column=1)
 
 div_button = tk.Button(root, text='/', width=10, height=4,
-                       command=lambda: update_result(result_label, c.div(int(a.get()), int(b.get())))
+                       command=lambda: update_result(result_label, a, b, c.div)
                        ).grid(row=3, column=1)
-
 
 root.mainloop()
