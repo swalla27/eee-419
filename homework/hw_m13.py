@@ -209,8 +209,8 @@ class Graphical(Scientific):
 
         # Plot the two arrays, label the axes, create a titlte, and display the graph.
         plt.plot(x, y)
-        plt.xlabel('X-Axis')
-        plt.ylabel('Y-Axis')
+        plt.xlabel('x-axis')
+        plt.ylabel('y-axis')
         plt.title('Homework M13 Graphical Calculator')
         plt.grid(True)
         plt.show()
@@ -239,7 +239,6 @@ print(f'The base-{s.x} logarithm of {a} is {result:.4f}.')
 y = np.arange(0, 50, 1)
 g.graph(np.arange(0, 50, 1))
 
-
 #######################
 ##### Tkinter GUI #####
 #######################
@@ -264,30 +263,35 @@ def update_result(result_label: tk.Label, a: tk.StringVar, b: tk.StringVar, fx: 
     None
     """
     
+    # Convert the two tkinter string variables into integers.
     in1 = int(a.get())
     in2 = int(b.get())
 
+    # Call the function that was passed in with the two integers, then create new text with this result.
     result = fx(in1, in2)
     newtext = f'Result = {result}'
 
+    # Update the result label with this new text.
     result_label.config(text=newtext)
 
-
+# Create the tkinter root and give it a title.
 root = tk.Tk()
 root.title('HW13 Calculator')
 
+# Define tkinter string variables for the two numbers a and b.
+# Next, set some default values and create the entry widgets.
 a = tk.StringVar()
 b = tk.StringVar()
-
 a.set('15')
 b.set('20')
-
 entry_a = tk.Entry(root, textvariable=a).grid(row=0, column=0)
 entry_b = tk.Entry(root, textvariable=b).grid(row=1, column=0)
 
+# Add the result label and place it in the tkinter grid.
 result_label = tk.Label(root, text='Result = ')
 result_label.grid(row=2, column=0, rowspan=2)
 
+# Create buttons for the arithmetic operations, each of which calls their respective function from the calculator class.
 add_button = tk.Button(root, text='+', width=10, height=4,
                        command=lambda: update_result(result_label, a, b, c.add)
                        ).grid(row=0, column=1)
@@ -304,4 +308,5 @@ div_button = tk.Button(root, text='/', width=10, height=4,
                        command=lambda: update_result(result_label, a, b, c.div)
                        ).grid(row=3, column=1)
 
+# Begin the tkinter main loop.
 root.mainloop()
