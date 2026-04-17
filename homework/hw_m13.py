@@ -19,40 +19,129 @@ import os
 #############################
 
 class Calculator():
-    def __init__(self):
-        pass
+    """
+    A calculator class containing methods for addition, subtraction, multiplication, and division. 
+    It is the parent of the scientific and graphical calculators.
+    """
 
     @staticmethod
     def add(a: float, b: float):
+        """
+        Return the sum of two numbers, called a and b. 
+
+        Paremeters
+        ----------
+        a: float
+            The first number to be added.
+        b: float
+            The second number to be added.
+
+        Returns
+        -------
+        result: float
+            The sum of the numbers a and b.
+        """
+
         return a + b
     
     @staticmethod
     def subtr(a: float, b: float):
+        """
+        Return the difference of two numbers, called a and b.
+
+        Paremeters
+        ----------
+        a: float
+            The first number in the equation.
+        b: float
+            The value subtracted from the first.
+
+        Returns
+        -------
+        result: float
+            The difference of the numbers a and b.
+        """
+
         return a - b
     
     @staticmethod
     def mult(a: float, b: float):
+        """
+        Return the product of two numbers, called a and b.
+
+        Paremeters
+        ----------
+        a: float
+            The first number in the equation
+        b: float
+            The value that a is multiplied by.
+
+        Returns
+        -------
+        result: float
+            The product of the numbers a and b.
+        """
+
         return a * b
     
     @staticmethod
     def div(a: float, b: float):
+        """
+        Return the quotient of two numbers, called a and b.
+
+        Paremeters
+        ----------
+        a: float
+            The first number in the equation
+        b: float
+            The value that a is divided by.
+
+        Returns
+        -------
+        result: float
+            The quotient of the numbers a and b.
+        """
+
         return a / b
     
 class Scientific(Calculator):
+    """
+    A class which inherits arithmetic methods from Calculator, but also has logarithmic, exponential, and trigonometric functions.
+    """
 
-    # Class Variable for the logarithm and exponent methods.
+    # Define a class variable for the logarithm and exponent methods.
     x = 2
 
     def log(self, a: float):
         """
-        Return the base-2 logarithm of a using the change of base formula.
+        Return the base-2 logarithm of "a" using the change of base formula.
+
+        Parameters
+        ----------
+        a: float
+            The argument of the logarithm function.
+        
+        Returns
+        -------
+        result: float
+            The base-2 logarithm of "a." Of course, changing x would also change the base in this equation.
         """
 
         return np.log(a) / np.log(self.x)
     
     def exp(self, a: float):
         """
-        Return the value of 2 raised to the x.
+        Return the value of 2 raised to the a.
+
+        Parameters
+        ----------
+        a: float
+            The argument of the exponential function.
+        
+        Returns
+        -------
+        result: float
+            The value of x raised to the a. Changing the class variable x would also affect this method.
         
         """
 
@@ -60,19 +149,65 @@ class Scientific(Calculator):
     
     @staticmethod
     def sin(a: float):
+        """
+        Return the sine of an input number a.
+
+        Parameters
+        ----------
+        a: float
+            The input to the sine function.
+
+        Returns
+        -------
+        result: float
+            The sine of the value a.
+        """
+
         return np.sin(a)
     
     @staticmethod
     def cos(a: float):
+        """
+        Return the cosine of an input number a.
+
+        Parameters
+        ----------
+        a: float
+            The input to the cosine function.
+
+        Returns
+        -------
+        result: float
+            The cosine of the value a.
+        """
+
         return np.cos(a)
     
 class Graphical(Scientific):
+    """
+    A class which inherits arithmetic methods from Calculator, but also has graphing capabilities.
+    """
 
     @staticmethod
     def graph(y: np.array):
+        """
+        Create a matplotlib graph of an input array y with another array x containing values from 0 to 100.
+
+        Parameters
+        ----------
+        y: np.array
+            The input array to be graphed on the vertical axis.
+
+        Returns
+        -------
+        None
+        """
+
+        # Create an array for the horizontal axis based on the length of the array called y.
         num_elements = len(y)
         x = np.linspace(0, 100, num_elements)
 
+        # Plot the two arrays, label the axes, create a titlte, and display the graph.
         plt.plot(x, y)
         plt.xlabel('X-Axis')
         plt.ylabel('Y-Axis')

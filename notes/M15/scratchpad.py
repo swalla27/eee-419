@@ -1,14 +1,6 @@
+import secrets
+import numpy as np
 
-
-# Option A.
-with open('nuclear_codes.txt', 'w') as f:
-    lines = f.readlines()
-    for line in lines:
-        print(line)
-
-# Option B.
-f = open('nuclear_codes.txt', 'w')
-lines = f.readlines()
-for line in lines:
-    print(line)
-
+seed = secrets.randbits(128)
+# 103848893776354803619115694269950729738
+rng = np.random.default_rng(seed)
