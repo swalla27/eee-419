@@ -37,7 +37,7 @@ import os
 
 BATCH_SIZE = 128
 NUM_CLASSES = 10
-EPOCHS = 5
+EPOCHS = 2
 INCLUDE_LIST = ['ship', 'truck']
 SHOW_GRAPHS = True
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -58,27 +58,9 @@ class CIFAR10_NET(nn.Module):
         enet_out_size = 1280
         self.classifier = nn.Linear(enet_out_size, num_classes)
 
-        # self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=(3,3))
-        # self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3,3))
-        # self.mpool = nn.MaxPool2d(kernel_size=2)
-        # self.drop1 = nn.Dropout(p=0.25)
-        # self.flat = nn.Flatten()
-        # self.fc1 = nn.Linear(in_features=64*12*12, out_features=128)
-        # self.drop2 = nn.Dropout(p=0.5)
-        # self.fc2 = nn.Linear(in_features=128, out_features=num_classes)
-
     def forward(self, x):
         x = self.features(x)
         x = self.classifier(x)
-
-        # x = F.relu(self.conv1(x))
-        # x = F.relu(self.conv2(x))
-        # x = self.mpool(x)
-        # x = self.drop1(x)
-        # x = self.flat(x)
-        # x = F.relu(self.fc1(x))
-        # x = self.drop2(x)
-        # x = self.fc2(x)
         return x
     
 
@@ -89,6 +71,8 @@ def custom_accuracy(testloader, model):
 
     num_correct = 0
     num_attempts = 0
+
+    model.eval()
 
     for images, labels in testloader:
 
@@ -103,7 +87,7 @@ def custom_accuracy(testloader, model):
             num_correct  += num_right
             num_attempts += num_guess
 
-    accuracy = 100*num_correct/num_attempts
+    accuracy = 100*num_correct / num_attempts
     return accuracy
 
 def training_loop(transform):
@@ -146,7 +130,7 @@ def training_loop(transform):
         running_loss = 0.0
 
         # Begin to loop over the training loader.
-        for batch_idx, (images, labels) in enumerate(trainloader):
+        for images, labels in trainloader:
 
             # Send the images and labels to the GPU if available.
             images, labels = images.to(DEVICE), labels.to(DEVICE)
@@ -183,7 +167,7 @@ def training_loop(transform):
         test_loss = running_loss / len(trainloader.dataset)
         test_losses.append(test_loss)
 
-        print(f'Epoch {epoch}/{EPOCHS}:\n\tTraining Loss = {train_loss}\n\tTesting Loss = {test_loss}')
+        print(f'Epoch {epoch+1}/{EPOCHS}:\n\tTraining Loss = {train_loss}\n\tTesting Loss = {test_loss}')
 
     # Record the time when training ended.
     t_end = time.time()
@@ -199,9 +183,33 @@ def training_loop(transform):
         plt.legend()
         plt.show()
 
-    # Return the model accuracy and training time.
-    accuracy = custom_accuracy(testloader, model)
+    # Determine the final model accuracy.
+    num_correct = 0
+    num_attempts = 0
+
+    model.eval()
+
+    for images, labels in testloader:
+
+        with torch.no_grad():
+
+            outputs = model(images)
+            guesses = torch.argmax(outputs, 1)
+
+            num_guess = len(guesses)
+            num_right = torch.sum(labels == guesses).item()
+
+            num_correct  += num_right
+            num_attempts += num_guess
+
+    accuracy = 100*num_correct / num_attempts
+
+    # Find the training duration. 
     duration = t_start - t_end
+
+    print(f'accuracy: {accuracy}')
+    print(f'duration: {duration}')
+
     return accuracy, duration
 
 ####################
