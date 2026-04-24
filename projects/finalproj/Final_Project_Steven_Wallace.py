@@ -21,6 +21,8 @@ import torch.nn.functional as F
 import torchvision
 from torchvision import transforms
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 import time
 import sys
@@ -33,6 +35,7 @@ import os
 BATCH_SIZE = 128
 NUM_CLASSES = 2
 EPOCHS = 2
+INCLUDE_LIST = ['ship', 'truck']
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -66,29 +69,6 @@ class CIFAR10_NET(nn.Module):
         x = self.drop2(x)
         x = self.fc2(x)
         return x
-    
-class SubLoader(torchvision.datasets.CIFAR10):
-    def __init__(self, *args, exclude_list=[], **kwargs):
-        super(SubLoader, self).__init__(*args, **kwargs)
-
-        # if exclude_list == []:
-        #     return
-
-        if self.train:
-            labels = np.array(self.train_labels)
-            print(labels)
-            exclude = np.array(exclude_list).reshape(1, -1)
-            mask = ~(labels.reshape(-1, 1) == exclude).any(axis=1)
-
-            self.train_data = self.train_data[mask]
-            self.train_labels = labels[mask].tolist()
-        else:
-            labels = np.array(self.test_labels)
-            exclude = np.array(exclude_list).reshape(1, -1)
-            mask = ~(labels.reshape(-1, 1) == exclude).any(axis=1)
-
-            self.test_data = self.test_data[mask]
-            self.test_labels = labels[mask].tolist()
 
 ###########################
 ##### Gather the data #####
@@ -100,17 +80,43 @@ normalize = transforms.Normalize([0.5], [0.5])
 transform = transforms.Compose([to_tensor, normalize])
 
 # Load the training data.
+trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
+                            download=True, transform=transform)
 
-loader = SubLoader(root='~/CIFAR10_data', train=True, download=True)
-
-# trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
-#                             download=True, transform=transform)
-
-# trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
-#                                           shuffle=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
+                                          shuffle=False)
 
 
-sys.exit()
+# for batch_idx, (images, labels) in enumerate(trainloader):
+
+#     plt.imshow(images[0])
+#     plt.title('original photo')
+#     plt.show()
+
+#     print(labels)
+#     print(batch_idx)
+
+# print(dir(trainloader))
+
+# sys.exit()
+
+# # Remove the unwanted classes from the dataset.
+# labels = np.array(trainset.classes)
+# include = np.array(INCLUDE_LIST).reshape(1, -1)
+# mask = (labels.reshape(-1, 1) == include).any(axis=1)
+# # trainset.data = trainset.data[mask]
+# # trainset.classes = trainset.classes[mask]
+
+# print(labels)
+# print(trainset.classes)
+# print(trainset.meta)
+# print(trainset.data.shape)
+# print(include)
+# print(mask)
+
+# sys.exit()
+
+
 
 # Load the testing data.
 testset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=False, 
