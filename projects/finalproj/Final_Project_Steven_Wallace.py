@@ -35,14 +35,15 @@ import os
 ##### Constants #####
 #####################
 
+# I found that 20 epochs was about where the training and testing loss intercepted. 
+# Therefore, adding any more epochs would result in overfitting. My computer can handle 20 epochs in less than a minute.
 BATCH_SIZE = 128
-NUM_CLASSES = 10
-EPOCHS = 50
+NUM_CLASSES = 2
+EPOCHS = 20
 
 INCLUDE_LIST = ['ship', 'truck']
 SHOW_GRAPHS = True
 SHOW_PROGRESS = True
-# DEVICE = 'cpu'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 #################################
@@ -93,9 +94,9 @@ class CIFAR10_Custom_Net(nn.Module):
         self.mpool = nn.MaxPool2d(kernel_size=2)
         self.drop1 = nn.Dropout(p=0.25)
         self.flat = nn.Flatten()
-        self.fc1 = nn.Linear(in_features=64*14*14, out_features=128)
+        self.fc1 = nn.Linear(in_features=64*14*14, out_features=32)
         self.drop2 = nn.Dropout(p=0.5)
-        self.fc2 = nn.Linear(in_features=128, out_features=num_classes)
+        self.fc2 = nn.Linear(in_features=32, out_features=num_classes)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -253,7 +254,19 @@ def training_loop(model, trainloader, testloader, criterion, optimizer):
 
 
 def hideous_sorting_function(dataset):
+    """
+    A hideous sorting function to remove all the classes except for those in the include list.
 
+    Parameters
+    ----------
+    dataset: torchvision.datasets.CIFAR10
+        The CIFAR10 dataset to be sorted. There are four times I call this function, and the transforms or test/train boolean will be different each time.
+    
+    Returns
+    -------
+    dataset: torchvision.datasets.CIFAR10
+        Hopefully, I am returning the dataset as close to untouched as possible. I just wanted to remove the unwanted classes from it.
+    """
 
     # There is a dictionary which connects the string labels to integers.
     # I need to create a list of the label integers that I want to discard.
@@ -267,6 +280,10 @@ def hideous_sorting_function(dataset):
     exclude = np.array(exclude_list).reshape(1, -1)
     mask = ~(targets.reshape(-1, 1) == exclude).any(axis=1)
 
+    # The labels must start with 0. After this command and the mask, they will be either 0 or 1.
+    targets -= 8
+
+    # Shove the modified data structures back into the class.
     dataset.data = dataset.data[mask]
     dataset.targets = list(targets[mask])
 
