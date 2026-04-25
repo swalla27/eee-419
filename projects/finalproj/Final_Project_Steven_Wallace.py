@@ -37,18 +37,19 @@ import os
 
 BATCH_SIZE = 128
 NUM_CLASSES = 10
-EPOCHS = 1
+EPOCHS = 50
 
 INCLUDE_LIST = ['ship', 'truck']
 SHOW_GRAPHS = True
 SHOW_PROGRESS = True
+# DEVICE = 'cpu'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 #################################
 ##### Functions and Classes #####
 #################################
 
-class CIFAR10_RGB_Net(nn.Module):
+class CIFAR10_Pretrain_Net(nn.Module):
     """
     Define the neural network used for predictions on the RGB dataset. This inherits from nn.Module and initializes a pretrained model from timm called 'efficientnet_b0.'
 
@@ -61,7 +62,7 @@ class CIFAR10_RGB_Net(nn.Module):
     """
 
     def __init__(self, num_classes):
-        super(CIFAR10_RGB_Net, self).__init__()
+        super(CIFAR10_Pretrain_Net, self).__init__()
         self.base_model = timm.create_model('efficientnet_b0', pretrained=True)
         self.features = nn.Sequential(*list(self.base_model.children())[:-1])
         enet_out_size = 1280
@@ -72,7 +73,7 @@ class CIFAR10_RGB_Net(nn.Module):
         x = self.classifier(x)
         return x
     
-class CIFAR10_Gray_Net(nn.Module):
+class CIFAR10_Custom_Net(nn.Module):
     """
     Define the neural network used for predictions on the Grayscale dataset. This is a modified version of the EEE419 example code.
 
@@ -85,9 +86,9 @@ class CIFAR10_Gray_Net(nn.Module):
 
     """
 
-    def __init__(self, num_classes: int):
-        super(CIFAR10_Gray_Net, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=(3,3))
+    def __init__(self, in_channels: int, num_classes: int):
+        super(CIFAR10_Custom_Net, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=(3,3))
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3,3))
         self.mpool = nn.MaxPool2d(kernel_size=2)
         self.drop1 = nn.Dropout(p=0.25)
@@ -253,14 +254,6 @@ def training_loop(model, trainloader, testloader, criterion, optimizer):
 
 def hideous_sorting_function(dataset):
 
-    print(dataset.data.shape)
-    print(type(dataset.data))
-    sys.exit()
-
-
-    # Initialize some variables to hold the images and labels that I plan to keep. 
-    keep_images = list()
-    keep_labels = list()
 
     # There is a dictionary which connects the string labels to integers.
     # I need to create a list of the label integers that I want to discard.
@@ -270,14 +263,12 @@ def hideous_sorting_function(dataset):
         if key not in INCLUDE_LIST:
             exclude_list.append(value)
 
-    # Keep only the images and labels that are not in the exclude list.
-    for image, label in dataset:
-        if label not in exclude_list:
-            keep_images.append(image)
-            keep_labels.append(label)
+    targets = np.array(dataset.targets)
+    exclude = np.array(exclude_list).reshape(1, -1)
+    mask = ~(targets.reshape(-1, 1) == exclude).any(axis=1)
 
-    dataset.targets = keep_labels
-    dataset.data = keep_images
+    dataset.data = dataset.data[mask]
+    dataset.targets = list(targets[mask])
 
     return dataset
 
@@ -293,7 +284,6 @@ transform = transforms.Compose([to_tensor, normalize])
 # Load the training data and apply the requested transform.
 trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
                             download=True, transform=transform)
-
 trainset = hideous_sorting_function(trainset)
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
@@ -302,11 +292,13 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
 # Load the testing data and apply the requested transform.
 testset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=False, 
                             download=True, transform=transform)
+testset = hideous_sorting_function(testset)
+
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
                                         shuffle=False)
 
-# Create an instance of the CIFAR10_RGB_Net class and send it to the GPU if available.
-model = CIFAR10_RGB_Net(NUM_CLASSES)
+# Create an instance of the CIFAR10_Pretrain_Net class and send it to the GPU if available.
+model = CIFAR10_Custom_Net(in_channels=3, num_classes=NUM_CLASSES)
 model.to(DEVICE)
 
 criterion = nn.CrossEntropyLoss()
@@ -328,17 +320,21 @@ transform = transforms.Compose([to_tensor, grayscale, normalize])
 # Load the training data and apply the requested transform.
 trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
                             download=True, transform=transform)
+trainset = hideous_sorting_function(trainset)
+
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                         shuffle=True)
 
 # Load the testing data and apply the requested transform.
 testset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=False, 
                             download=True, transform=transform)
+testset = hideous_sorting_function(testset)
+
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
                                         shuffle=False)
 
-# Create an instance of the CIFAR10_RGB_Net class and send it to the GPU if available.
-model = CIFAR10_Gray_Net(NUM_CLASSES)
+# Create an instance of the CIFAR10_Pretrain_Net class and send it to the GPU if available.
+model = CIFAR10_Custom_Net(in_channels=1, num_classes=NUM_CLASSES)
 model.to(DEVICE)
 
 criterion = nn.CrossEntropyLoss()
