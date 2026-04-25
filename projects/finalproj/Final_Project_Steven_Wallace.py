@@ -37,7 +37,7 @@ import os
 
 BATCH_SIZE = 128
 NUM_CLASSES = 10
-EPOCHS = 25
+EPOCHS = 1
 
 INCLUDE_LIST = ['ship', 'truck']
 SHOW_GRAPHS = True
@@ -250,6 +250,37 @@ def training_loop(model, trainloader, testloader, criterion, optimizer):
     duration = t_end - t_start
     return accuracy, duration
 
+
+def hideous_sorting_function(dataset):
+
+    print(dataset.data.shape)
+    print(type(dataset.data))
+    sys.exit()
+
+
+    # Initialize some variables to hold the images and labels that I plan to keep. 
+    keep_images = list()
+    keep_labels = list()
+
+    # There is a dictionary which connects the string labels to integers.
+    # I need to create a list of the label integers that I want to discard.
+    class_dict = dataset.class_to_idx
+    exclude_list = list()
+    for key, value in class_dict.items():
+        if key not in INCLUDE_LIST:
+            exclude_list.append(value)
+
+    # Keep only the images and labels that are not in the exclude list.
+    for image, label in dataset:
+        if label not in exclude_list:
+            keep_images.append(image)
+            keep_labels.append(label)
+
+    dataset.targets = keep_labels
+    dataset.data = keep_images
+
+    return dataset
+
 ####################
 ##### RGB Case #####
 ####################
@@ -262,6 +293,9 @@ transform = transforms.Compose([to_tensor, normalize])
 # Load the training data and apply the requested transform.
 trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
                             download=True, transform=transform)
+
+trainset = hideous_sorting_function(trainset)
+
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                         shuffle=True)
 

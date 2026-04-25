@@ -1,18 +1,19 @@
-import torch
-import time
+import matplotlib.pyplot as plt
+import numpy as np
 
-N = 10_000
+fsig = 1e3
+Tsig = 1 / fsig
+fsamp = 2.2e3
+Tsamp = 1 / fsamp
 
-# A = torch.randn(N, N)
-# B = torch.randn(N, N)
+tsamp = np.arange(0, 10*Tsig, Tsamp)
+ysamp = np.sin(2*np.pi*fsig*tsamp)
 
-# t0 = time.time()
-# C = torch.matmul(A, B)
-# print(f'CPU Time: {time.time()-t0:.2f} s')
+tsig = np.arange(0, 10*Tsig, Tsamp/50)
+ysig = np.sin(2*np.pi*fsig*tsig)
 
-A = torch.randn(N, N).cuda()
-B = torch.randn(N, N).cuda()
-
-t0 = time.time()
-C = torch.matmul(A, B)
-print(f'GPU Time: {time.time()-t0:.2f} s')
+plt.plot(tsig, ysig, color='black')
+plt.scatter(tsamp, ysamp, color='red')
+plt.title(f'fsamp/fsig = {fsamp/fsig:.1f}')
+plt.grid(True)
+plt.show()
