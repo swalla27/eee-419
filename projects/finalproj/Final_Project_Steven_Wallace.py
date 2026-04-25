@@ -41,6 +41,7 @@ EPOCHS = 25
 
 INCLUDE_LIST = ['ship', 'truck']
 SHOW_GRAPHS = True
+SHOW_PROGRESS = True
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 #################################
@@ -226,7 +227,9 @@ def training_loop(model, trainloader, testloader, criterion, optimizer):
         test_loss = running_loss / len(trainloader.dataset)
         test_losses.append(test_loss)
 
-        print(f'Epoch {epoch+1}/{EPOCHS}:\n\tTraining Loss = {train_loss}\n\tTesting Loss = {test_loss}')
+        # Print the progress for this epoch to the terminal, but only if the constant requests it.
+        if SHOW_PROGRESS:
+            print(f'Epoch {epoch+1}/{EPOCHS}:\n\tTraining Loss = {train_loss}\n\tTesting Loss = {test_loss}')
 
     # Record the time when training ended.
     t_end = time.time()
@@ -310,12 +313,12 @@ optimizer = optim.Adadelta(model.parameters())
 # Run the training loop with this new model and transformed data.
 gray_acc, gray_time = training_loop(model, trainloader, testloader, criterion, optimizer)
 
-#######################################################
-##### Display the results in the requested format #####
-#######################################################
+###########################
+##### Display Results #####
+###########################
 
 print(f'RGB Accuracy: {rgb_acc:.1f}%')
 print(f'Grayscale Accuracy: {gray_acc:.1f}%')
-print(f'RGB Runtime: {rgb_time:.5f} seconds')
-print(f'Grayscale Runtime: {gray_time:.5f} seconds')
+print(f'RGB Runtime: {rgb_time:.2f} seconds')
+print(f'Grayscale Runtime: {gray_time:.2f} seconds')
 print('Steven Wallace recommends RGB algorithm')
