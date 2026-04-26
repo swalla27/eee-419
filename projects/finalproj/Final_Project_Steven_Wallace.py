@@ -356,9 +356,9 @@ print('Steven Wallace recommends RGB algorithm')
 
 """
 During testing, I ran this code for 20 epochs.
-When using my GPU, an RGB accuracy of 94.3% was reached in 138.8 s.
-When using my CPU, an RGB accuracy of 94.4% was reached in 31.8 s.
-Therefore, the GPU 4.36 times faster at training this nn than the CPU.
+When using my CPU, an RGB accuracy of 94.3% was reached in 138.8 s.
+When using my GPU, an RGB accuracy of 94.4% was reached in 31.8 s.
+Therefore, the GPU is 4.36 times faster at training this nn than the CPU.
 
 The example code used 2 epochs, but I think I will submit the code with
 5 because the accuracy is way better than 2 and it doesn't take long.
