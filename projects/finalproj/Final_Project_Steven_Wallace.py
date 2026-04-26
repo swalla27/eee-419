@@ -7,20 +7,19 @@
 
 # I did not use AI at all to complete this assignment.
 
-# Another example of how to train a neural network on CIFAR10.
+# This github link shows another example of how to train a neural network on the CIFAR10 dataset.
 # https://github.com/kuangliu/pytorch-cifar/blob/49b7aa97b0c12fe0d4054e670403a16b6b834ddd/main.py
 
-# How to extract a subset of the CIFAR10 dataset.
+# This thread in stackoverflow describes how to extract a subset of the CIFAR10 dataset, but it was pretty out of date.
 # https://stackoverflow.com/questions/54380140/how-do-i-extract-only-subset-of-classes-from-torchvision-datasets-cifar10#54380927
 
-# Build your first pytorch model in minutes.
+# This kaggle link explains how to build a playing card classifier with pytorch.
 # https://www.kaggle.com/code/robikscube/train-your-first-pytorch-model-card-classifier
 
 import torch
 import torch.nn  as nn
 import torch.optim as optim
 import torch.nn.functional as F
-import timm
 
 import torchvision
 from torchvision import transforms
@@ -28,51 +27,28 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-import sys
-import os
 
 #####################
 ##### Constants #####
 #####################
 
 # I found that 20 epochs was about where the training and testing loss intercepted. 
-# Therefore, adding any more epochs would result in overfitting. My computer can handle 20 epochs in less than a minute.
+# Therefore, adding any more epochs would result in overfitting. My GPU completes 20 epochs in less than a minute.
 BATCH_SIZE = 128
 NUM_CLASSES = 2
-EPOCHS = 20
+EPOCHS = 5
 
+# During testing, I wanted to have graphs and progress updates while the code was running. Those are turned off in the submitted version.
 INCLUDE_LIST = ['ship', 'truck']
-SHOW_GRAPHS = True
-SHOW_PROGRESS = True
+SHOW_GRAPHS = False
+SHOW_PROGRESS = False
+
+# This will determine whether cuda is available, in which case my code uses the GPU. Otherwise, it falls back to the CPU.
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 #################################
 ##### Functions and Classes #####
 #################################
-
-class CIFAR10_Pretrain_Net(nn.Module):
-    """
-    Define the neural network used for predictions on the RGB dataset. This inherits from nn.Module and initializes a pretrained model from timm called 'efficientnet_b0.'
-
-    Attributes
-    ----------
-    __init__: instance method
-        Initialize the pretrained neural network based upon efficientnet_b0. I am removing the final layer here and replacing it with a linear classifier.
-    forward: instance method
-        Determine the output predictions based on an input to the neural network "x". This is used with back propagation to form the training loop.
-    """
-
-    def __init__(self, num_classes):
-        super(CIFAR10_Pretrain_Net, self).__init__()
-        self.base_model = timm.create_model('efficientnet_b0', pretrained=True)
-        self.features = nn.Sequential(*list(self.base_model.children())[:-1])
-        enet_out_size = 1280
-        self.classifier = nn.Linear(enet_out_size, num_classes)
-
-    def forward(self, x):
-        x = self.features(x)
-        x = self.classifier(x)
-        return x
     
 class CIFAR10_Custom_Net(nn.Module):
     """
@@ -82,9 +58,11 @@ class CIFAR10_Custom_Net(nn.Module):
     ----------
     __init__: instance method
         Define the architecture of the neural network, which involves convolutional 2D layers, pooling, dropout, and flattening.
+        To create this architecture, I made the number of input channels a variable so that it can accept either RGB or grayscale images.
+        I also changed the size of the linear layer to be 64 x 14 x 14 instead of 64 x 12 x 12, and the number of input features to the final layer
+        is now 32.
     forward: instance method
         Define what it means to forward propagate this neural network. It makes use of RELU as the activation function.
-
     """
 
     def __init__(self, in_channels: int, num_classes: int):
@@ -111,7 +89,9 @@ class CIFAR10_Custom_Net(nn.Module):
     
 def custom_accuracy(testloader, model):
     """
-    A custom accuracy function using code from the EEE419 PyTorch examples.
+    A custom accuracy function using code from the EEE419 PyTorch examples. This code is only slightly modified from the provided examples.
+    If I recall correctly, this code sends the images and labels to the GPU when it is available. I'm pretty sure the original code
+    only used the CPU.
 
     Parameters
     ----------
@@ -154,7 +134,8 @@ def custom_accuracy(testloader, model):
 
 def training_loop(model, trainloader, testloader, criterion, optimizer):
     """
-    Define a training loop which will be used for the RGB and Grayscale situations.
+    Define a loop which will be used to train the nn for both the RGB and Grayscale situations. This function will
+    return the accuracy and duration.
 
     Parameters
     ----------
@@ -252,20 +233,20 @@ def training_loop(model, trainloader, testloader, criterion, optimizer):
     duration = t_end - t_start
     return accuracy, duration
 
-
-def hideous_sorting_function(dataset):
+def hideous_trimming_function(dataset):
     """
-    A hideous sorting function to remove all the classes except for those in the include list.
+    A hideous trimming function to remove all the classes except for those in the include list. There are four times I call this function, which
+    is twice for the RGB data and another two times for the grayscale images.
 
     Parameters
     ----------
     dataset: torchvision.datasets.CIFAR10
-        The CIFAR10 dataset to be sorted. There are four times I call this function, and the transforms or test/train boolean will be different each time.
+        The CIFAR10 dataset. I want to remove all classes except those in the include list.
     
     Returns
     -------
     dataset: torchvision.datasets.CIFAR10
-        Hopefully, I am returning the dataset as close to untouched as possible. I just wanted to remove the unwanted classes from it.
+        I am returning the dataset with only the unwanted classes removed.
     """
 
     # There is a dictionary which connects the string labels to integers.
@@ -276,6 +257,7 @@ def hideous_sorting_function(dataset):
         if key not in INCLUDE_LIST:
             exclude_list.append(value)
 
+    # These 3 lines were inspired by source #2. I am making a mask to remove the unwanted classes.
     targets = np.array(dataset.targets)
     exclude = np.array(exclude_list).reshape(1, -1)
     mask = ~(targets.reshape(-1, 1) == exclude).any(axis=1)
@@ -301,7 +283,7 @@ transform = transforms.Compose([to_tensor, normalize])
 # Load the training data and apply the requested transform.
 trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
                             download=True, transform=transform)
-trainset = hideous_sorting_function(trainset)
+trainset = hideous_trimming_function(trainset)
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                         shuffle=True)
@@ -309,7 +291,7 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
 # Load the testing data and apply the requested transform.
 testset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=False, 
                             download=True, transform=transform)
-testset = hideous_sorting_function(testset)
+testset = hideous_trimming_function(testset)
 
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
                                         shuffle=False)
@@ -318,6 +300,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
 model = CIFAR10_Custom_Net(in_channels=3, num_classes=NUM_CLASSES)
 model.to(DEVICE)
 
+# Define the criterion and the optimizer for training this nn.
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adadelta(model.parameters())
 
@@ -337,7 +320,7 @@ transform = transforms.Compose([to_tensor, grayscale, normalize])
 # Load the training data and apply the requested transform.
 trainset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=True, 
                             download=True, transform=transform)
-trainset = hideous_sorting_function(trainset)
+trainset = hideous_trimming_function(trainset)
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                         shuffle=True)
@@ -345,7 +328,7 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
 # Load the testing data and apply the requested transform.
 testset = torchvision.datasets.CIFAR10(root='~/CIFAR10_data', train=False, 
                             download=True, transform=transform)
-testset = hideous_sorting_function(testset)
+testset = hideous_trimming_function(testset)
 
 testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
                                         shuffle=False)
@@ -354,6 +337,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
 model = CIFAR10_Custom_Net(in_channels=1, num_classes=NUM_CLASSES)
 model.to(DEVICE)
 
+# Define the criterion and the optimizer for training this nn.
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adadelta(model.parameters())
 
@@ -369,3 +353,19 @@ print(f'Grayscale Accuracy: {gray_acc:.1f}%')
 print(f'RGB Runtime: {rgb_time:.2f} seconds')
 print(f'Grayscale Runtime: {gray_time:.2f} seconds')
 print('Steven Wallace recommends RGB algorithm')
+
+"""
+During testing, I ran this code for 20 epochs.
+When using my GPU, an RGB accuracy of 94.3% was reached in 138.8 s.
+When using my CPU, an RGB accuracy of 94.4% was reached in 31.8 s.
+Therefore, the GPU 4.36 times faster at training this nn than the CPU.
+
+The example code used 2 epochs, but I think I will submit the code with
+5 because the accuracy is way better than 2 and it doesn't take long.
+I have thoroughly proven this code runs in less than 5 minutes, even up to 50 epochs.
+
+This is the hardware I used to get these numbers.
+GPU: NVIDIA GeForce RTX 3060
+CPU: AMD Ryzen 7 5800X
+RAM: 16 GB DDR4
+"""
