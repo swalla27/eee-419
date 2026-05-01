@@ -1,7 +1,0 @@
-/* No import/header style */
-.greeting-text::before {
-  content: "Hello, ";
-  color: blue;
-  font-weight: bold;
-}
-

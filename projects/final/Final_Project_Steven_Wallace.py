@@ -27,6 +27,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import sys
 
 #####################
 ##### Constants #####
@@ -77,14 +78,24 @@ class CIFAR10_Custom_Net(nn.Module):
         self.fc2 = nn.Linear(in_features=32, out_features=num_classes)
 
     def forward(self, x):
+        print(x.shape)
         x = F.relu(self.conv1(x))
+        print(x.shape)
         x = F.relu(self.conv2(x))
+        print(x.shape)
         x = self.mpool(x)
+        print(x.shape)
         x = self.drop1(x)
+        print(x.shape)
         x = self.flat(x)
+        print(x.shape)
         x = F.relu(self.fc1(x))
+        print(x.shape)
         x = self.drop2(x)
+        print(x.shape)
         x = self.fc2(x)
+        print(x.shape)
+        sys.exit()
         return x
     
 def custom_accuracy(testloader, model):
