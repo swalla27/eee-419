@@ -6,6 +6,7 @@
 # Final Project
 
 # I did not use AI at all to complete this assignment.
+# My student ID number is 1230 6177 02, and my username is swalla27.
 
 # This github link shows another example of how to train a neural network on the CIFAR10 dataset.
 # https://github.com/kuangliu/pytorch-cifar/blob/49b7aa97b0c12fe0d4054e670403a16b6b834ddd/main.py
